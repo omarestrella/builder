@@ -1,7 +1,6 @@
 {
-  "eslint.workingDirectories": [
-    {
-      "mode": "auto"
-    }
-  ]
+    "deno.enablePaths": [
+        "./packages/server"
+    ],
+    "deno.enable": true
 }
