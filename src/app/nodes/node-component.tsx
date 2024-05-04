@@ -16,6 +16,9 @@ export function NodeComponent({
 					id={key}
 					style={{
 						top: `calc(50% + ${20 * idx - 10}px)`,
+						width: "10px",
+						height: "10px",
+						transform: "translate(0, -50%)",
 					}}
 				/>
 			))}
@@ -26,10 +29,22 @@ export function NodeComponent({
 				}`}
 			>
 				<node.component node={node} />
+
+				<div className="text-xs text-gray-500">{node.id}</div>
 			</div>
 
 			{Object.entries(node.outputs ?? {}).map(([key, _value]) => (
-				<Handle key={key} type="source" position={Position.Right} id={key} />
+				<Handle
+					key={key}
+					type="source"
+					position={Position.Right}
+					id={key}
+					style={{
+						width: "10px",
+						height: "10px",
+						transform: "translate(0, -50%)",
+					}}
+				/>
 			))}
 		</>
 	)

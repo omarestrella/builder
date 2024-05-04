@@ -8,7 +8,7 @@ const outputs = z.object({
 	number: z.number(),
 })
 
-export class NumberNode extends BaseNode<typeof inputs, typeof outputs> {
+export class NumberNode extends BaseNode {
 	static type = "NUMBER"
 
 	name = "Number"

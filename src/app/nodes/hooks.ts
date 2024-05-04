@@ -1,26 +1,53 @@
-import { proxy, useSnapshot } from "valtio"
+import { useEffect, useState } from "react"
+import { proxy, subscribe, useSnapshot } from "valtio"
+import { z } from "zod"
 
-import { BaseNode, Schema } from "./base"
+import { nodeManager } from "../managers/node/manager"
+import { BaseNode, InputValue } from "./base"
 
 const dummyProxy = proxy({
 	value: null,
 })
 
-export function useOutputValue<
-	I extends Schema,
-	O extends Schema,
-	Node extends BaseNode<I, O>,
-	// [TODO]: fix key type
->(node: Node | undefined, key: string) {
-	const state = useSnapshot(node?.outputs?.[key] ?? dummyProxy)
+export function useOutputValue(node: BaseNode, key: string) {
+	const state = useSnapshot(node.outputs?.[key] ?? dummyProxy)
 	return state.value
 }
 
-type NodeInput<T> = T extends BaseNode<infer X, never> ? X : never
-type NodeOutput<T> = T extends BaseNode<never, infer X> ? X : never
-
 export function useNodeInputs<
-	Node extends BaseNode<NodeInput<Node>, NodeOutput<Node>>,
->(node: Node, key: string) {
-	return useSnapshot(node.inputs?.[key] ?? dummyProxy)
+	Node extends BaseNode,
+	Inputs extends z.TypeOf<Node["definition"]["inputs"]>,
+>(node: Node) {
+	const inputs = useSnapshot(node.inputs)
+
+	const [results, setResults] = useState({})
+
+	useEffect(() => {
+		const subscriptions: (() => void)[] = []
+		const inputEntries = Object.entries(inputs as Record<string, InputValue>)
+
+		inputEntries.forEach(([key, value]) => {
+			if (!value.fromNodeID) {
+				return
+			}
+
+			const fromNode = nodeManager.getNode(value.fromNodeID)
+			const outputKey = value.outputName
+			if (!fromNode || !outputKey || !fromNode.outputs[outputKey]) {
+				return
+			}
+
+			const unsubscribe = subscribe(fromNode.outputs[outputKey], () => {
+				setResults((r) => ({ ...r, [key]: fromNode.outputs[outputKey].value }))
+			})
+
+			subscriptions.push(unsubscribe)
+		})
+
+		return () => {
+			subscriptions.forEach((s) => s())
+		}
+	}, [inputs])
+
+	return results as Inputs
 }

@@ -1,14 +1,14 @@
 import { proxy } from "valtio"
 import { z } from "zod"
 
-type OutputValue<T> = {
+type OutputValue<T = unknown> = {
 	id: string
 	value: T
 	to?: string
 	from?: string
 }
 
-type InputValue = {
+export type InputValue = {
 	id: string
 	fromNodeID?: string
 	outputName?: string
@@ -16,64 +16,50 @@ type InputValue = {
 
 export type Schema = z.AnyZodObject
 
-export abstract class BaseNode<
-	InputSchema extends Schema,
-	OutputSchema extends Schema,
-	Inputs = z.TypeOf<InputSchema>,
-	Outputs = z.TypeOf<OutputSchema>,
-> {
+export type NodeValues<T extends Schema> = z.TypeOf<T>
+
+export abstract class BaseNode {
 	static type: string
 
 	id = crypto.randomUUID()
 
-	inputs?: Record<keyof Inputs, InputValue>
-	outputs?: Record<keyof Outputs, OutputValue<Outputs[keyof Outputs] | null>>
+	inputs: Record<string, InputValue> = proxy({} as never)
+	outputs: Record<string, OutputValue> = proxy({} as never)
 
 	abstract name: string
 	abstract definition: {
-		inputs: InputSchema
-		outputs: OutputSchema
+		inputs: Schema
+		outputs: Schema
 	}
-	abstract component(props: {
-		node: BaseNode<InputSchema, OutputSchema>
-	}): JSX.Element
+	abstract component(props: { node: BaseNode }): JSX.Element
 
 	initialize() {
-		const inputKeys = getSchemaKeys(
-			this.definition.inputs,
-		) as unknown as (keyof Inputs)[]
-		const outputKeys = getSchemaKeys(
-			this.definition.outputs,
-		) as unknown as (keyof Outputs)[]
+		const inputKeys = getSchemaKeys(this.definition.inputs)
+		const outputKeys = getSchemaKeys(this.definition.outputs)
 
-		this.inputs = inputKeys.reduce((acc, key) => {
-			acc[key] = proxy({
+		inputKeys.forEach((key) => {
+			this.inputs[key] = {
 				id: crypto.randomUUID(),
 				fromNodeID: undefined,
 				outputName: undefined,
-			})
-			return acc
-		}, {} as NonNullable<typeof this.inputs>)
+			}
+		})
 
-		this.outputs = outputKeys.reduce((acc, key) => {
-			acc[key] = proxy({
+		outputKeys.forEach((key) => {
+			this.outputs[key] = {
 				id: crypto.randomUUID(),
 				value: null,
-			})
-			return acc
-		}, {} as NonNullable<typeof this.outputs>)
+			}
+		})
 	}
 
-	setOutput<T extends keyof Outputs>(key: T, value: Outputs[T]) {
+	setOutput(key: string, value: unknown) {
 		if (!this.outputs) throw new Error("Outputs not initialized")
 
 		this.outputs[key].value = value
 	}
 
-	setInput<T extends keyof Inputs>(
-		key: T,
-		{ fromNodeID, outputName }: Omit<InputValue, "id">,
-	) {
+	setInput(key: string, { fromNodeID, outputName }: Omit<InputValue, "id">) {
 		if (!this.inputs) throw new Error("Inputs not initialized")
 		if (!this.inputs[key]) throw new Error("Input key not found")
 
@@ -81,10 +67,14 @@ export abstract class BaseNode<
 		this.inputs[key].outputName = outputName
 	}
 
-	getOutput(name: keyof Outputs): OutputValue<unknown> | undefined {
+	getOutput(name: string): OutputValue | undefined {
 		if (!this.outputs) throw new Error("Outputs not initialized")
 
 		return this.outputs?.[name]
+	}
+
+	getResult(_inputs: unknown): unknown {
+		return null
 	}
 }
 

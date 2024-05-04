@@ -9,7 +9,7 @@ export * from "./base"
 
 export function nodeFromType(type: string) {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let node: BaseNode<any, any>
+	let node: BaseNode
 	switch (type) {
 		case NumberNode.type:
 			node = new NumberNode()

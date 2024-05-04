@@ -16,8 +16,7 @@ import ReactFlow, {
 } from "reactflow"
 
 import { useDropNodeEffect } from "./managers/drag/useDropNodeEffect"
-import { nodesManager } from "./managers/nodes/manager"
-import { BaseNode } from "./nodes/base"
+import { nodeManager } from "./managers/node/manager"
 import { NodeComponent } from "./nodes/node-component"
 import { nodeFromType } from "./nodes/nodes"
 
@@ -48,8 +47,8 @@ export function Canvas() {
 			if (!connection.source || !connection.target) return
 			if (!connection.sourceHandle || !connection.targetHandle) return
 
-			const sourceNode = nodesManager.getNode(connection.source)
-			const targetNode = nodesManager.getNode(connection.target)
+			const sourceNode = nodeManager.getNode(connection.source)
+			const targetNode = nodeManager.getNode(connection.target)
 			if (!sourceNode || !targetNode) return
 
 			const sourceOutput = sourceNode.getOutput(connection.sourceHandle)
@@ -74,8 +73,8 @@ export function Canvas() {
 			})
 
 			// i actually dont care about the typing here
-			const node = nodeFromType(type) as unknown as BaseNode<never, never>
-			nodesManager.addNode(node)
+			const node = nodeFromType(type)
+			nodeManager.addNode(node)
 
 			setCanvasNodes((nodes) => [
 				...nodes,
