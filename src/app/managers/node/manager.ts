@@ -4,12 +4,13 @@ import { proxyMap } from "valtio/utils"
 import { BaseNode } from "../../nodes/base"
 
 export class NodeManager {
-	state = proxyMap<string, BaseNode>()
+	nodes = proxyMap<string, BaseNode>()
 
-	subscriptions = new Map<string, (() => void)[]>()
+	inputSubscriptions = new Map<string, () => void>()
+	outputSubscriptions = new Map<string, (() => void)[]>()
 
 	addNode(node: BaseNode) {
-		this.state.set(node.id, node)
+		this.nodes.set(node.id, node)
 
 		this.setupListeners(node)
 	}
@@ -17,39 +18,55 @@ export class NodeManager {
 	getNode(id?: string) {
 		if (!id) return undefined
 
-		return this.state.get(id)
+		return this.nodes.get(id)
 	}
 
 	removeNode(id: string) {
-		this.state.delete(id)
-		this.subscriptions.get(id)?.forEach((s) => s())
-		this.subscriptions.delete(id)
+		this.nodes.delete(id)
+		this.outputSubscriptions.get(id)?.forEach((s) => s())
+		this.outputSubscriptions.delete(id)
 	}
 
 	private setupListeners(node: BaseNode) {
-		if (this.subscriptions.get(node.id)) {
-			return
-		}
+		let subscriptions: (() => void)[] = []
 
-		const unsubscribeInputs = subscribe(node.inputs, () => {
-			console.log("inputs changed", node.inputs)
+		const inputSubscription = subscribe(node.inputData, () => {
+			let inputEntries = Object.entries(node.inputData)
+
+			this.outputSubscriptions.get(node.id)?.forEach((s) => s())
+
+			inputEntries.forEach(([key, value]) => {
+				if (!value.fromNodeID) {
+					return
+				}
+
+				let fromNode = this.getNode(value.fromNodeID)
+				let outputKey = value.outputName
+				if (!fromNode || !outputKey) {
+					return
+				}
+
+				let unsubscribe = subscribe(fromNode.outputs, () => {
+					node.setInput(key, fromNode.outputs[outputKey])
+				})
+				node.setInput(key, fromNode.outputs[outputKey])
+
+				subscriptions.push(unsubscribe)
+			})
 		})
 
-		const unsubscribeOutputs = subscribe(node.outputs, () => {
-			console.log("outputs changed", node.outputs)
-		})
-
-		this.subscriptions.set(node.id, [unsubscribeInputs, unsubscribeOutputs])
+		this.inputSubscriptions.set(node.id, inputSubscription)
+		this.outputSubscriptions.set(node.id, subscriptions)
 	}
 }
 
 export const nodeManager = new NodeManager()
 
 export function useNodes() {
-	return useSnapshot(nodeManager.state)
+	return useSnapshot(nodeManager.nodes)
 }
 
 export function useNode(id: string) {
-	const state = useSnapshot(nodeManager.state)
+	const state = useSnapshot(nodeManager.nodes)
 	return state.get(id)
 }

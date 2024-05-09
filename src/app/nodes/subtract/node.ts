@@ -12,16 +12,21 @@ const outputs = z.object({
 })
 
 export class SubtractNode extends BaseNode {
-	static type = "SUBTRACT"
-
-	name = "Subtract"
-
 	definition = {
 		inputs,
 		outputs,
 	}
 
+	static type = "SUBTRACT"
+
+	name = "Subtract"
+
 	component(props: { node: SubtractNode }): JSX.Element {
 		return Component(props)
+	}
+
+	protected writeOutputs(): void {
+		const { a, b } = this.inputs
+		this.setOutput("result", a - b)
 	}
 }

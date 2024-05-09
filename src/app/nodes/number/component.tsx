@@ -1,8 +1,8 @@
-import { useOutputValue } from "../hooks"
+import { useNodeOutput } from "../hooks"
 import type { NumberNode } from "./node"
 
 export function Component({ node }: { node: NumberNode }) {
-	const value = useOutputValue(node, "number")
+	const value = useNodeOutput(node, "number")
 
 	return (
 		<div>

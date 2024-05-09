@@ -1,14 +1,13 @@
 import { proxy } from "valtio"
 import { z } from "zod"
 
-type OutputValue<T = unknown> = {
+type OutputData = {
 	id: string
-	value: T
 	to?: string
 	from?: string
 }
 
-export type InputValue = {
+type InputData = {
 	id: string
 	fromNodeID?: string
 	outputName?: string
@@ -16,15 +15,26 @@ export type InputValue = {
 
 export type Schema = z.AnyZodObject
 
-export type NodeValues<T extends Schema> = z.TypeOf<T>
+export type Definition<T extends Schema> = z.TypeOf<T>
 
-export abstract class BaseNode {
+// this can probably be typed better, but I dont care right now
+export abstract class BaseNode<
+	InputDef extends Schema = Schema,
+	OutputDef extends Schema = Schema,
+	InputKey extends keyof z.TypeOf<InputDef> = keyof z.TypeOf<InputDef>,
+	OutputKey extends keyof z.TypeOf<OutputDef> = keyof z.TypeOf<OutputDef>,
+	InputValue = z.TypeOf<InputDef>[InputKey],
+	OutputValue = z.TypeOf<OutputDef>[OutputKey],
+> {
 	static type: string
 
 	id = crypto.randomUUID()
 
-	inputs: Record<string, InputValue> = proxy({} as never)
-	outputs: Record<string, OutputValue> = proxy({} as never)
+	inputData: Record<InputKey, InputData> = proxy({} as never)
+	outputData: Record<OutputKey, OutputData> = proxy({} as never)
+
+	inputs: Record<InputKey, InputValue> = proxy({} as never)
+	outputs: Record<OutputKey, OutputValue> = proxy({} as never)
 
 	abstract name: string
 	abstract definition: {
@@ -34,11 +44,11 @@ export abstract class BaseNode {
 	abstract component(props: { node: BaseNode }): JSX.Element
 
 	initialize() {
-		const inputKeys = getSchemaKeys(this.definition.inputs)
-		const outputKeys = getSchemaKeys(this.definition.outputs)
+		const inputKeys = getSchemaKeys(this.definition.inputs) as InputKey[]
+		const outputKeys = getSchemaKeys(this.definition.outputs) as OutputKey[]
 
 		inputKeys.forEach((key) => {
-			this.inputs[key] = {
+			this.inputData[key] = {
 				id: crypto.randomUUID(),
 				fromNodeID: undefined,
 				outputName: undefined,
@@ -46,35 +56,43 @@ export abstract class BaseNode {
 		})
 
 		outputKeys.forEach((key) => {
-			this.outputs[key] = {
+			this.outputData[key] = {
 				id: crypto.randomUUID(),
-				value: null,
 			}
 		})
 	}
 
-	setOutput(key: string, value: unknown) {
-		if (!this.outputs) throw new Error("Outputs not initialized")
-
-		this.outputs[key].value = value
+	setOutput(key: OutputKey, value: OutputValue) {
+		this.outputs[key] = value
 	}
 
-	setInput(key: string, { fromNodeID, outputName }: Omit<InputValue, "id">) {
-		if (!this.inputs) throw new Error("Inputs not initialized")
-		if (!this.inputs[key]) throw new Error("Input key not found")
-
-		this.inputs[key].fromNodeID = fromNodeID
-		this.inputs[key].outputName = outputName
+	setInput(key: InputKey, value: InputValue) {
+		this.inputs[key] = value
+		this.writeOutputs()
 	}
 
-	getOutput(name: string): OutputValue | undefined {
-		if (!this.outputs) throw new Error("Outputs not initialized")
+	setInputData(
+		key: InputKey,
+		{ fromNodeID, outputName }: Omit<InputData, "id">,
+	) {
+		if (!this.inputData) throw new Error("Inputs not initialized")
+		if (!this.inputData[key]) throw new Error("Input key not found")
 
-		return this.outputs?.[name]
+		this.inputData[key].fromNodeID = fromNodeID
+		this.inputData[key].outputName = outputName
+	}
+
+	getOutputData(name: OutputKey): OutputData | undefined {
+		if (!this.outputData) throw new Error("Outputs not initialized")
+		return this.outputData?.[name]
 	}
 
 	getResult(_inputs: unknown): unknown {
 		return null
+	}
+
+	protected writeOutputs() {
+		console.warn("writeOutputs not implemented.")
 	}
 }
 

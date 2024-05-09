@@ -2,13 +2,10 @@ import { Handle, NodeProps, Position } from "reactflow"
 
 import { BaseNode } from "./base"
 
-export function NodeComponent({
-	data: node,
-	selected,
-}: NodeProps<BaseNode<never, never>>) {
+export function NodeComponent({ data: node, selected }: NodeProps<BaseNode>) {
 	return (
 		<>
-			{Object.entries(node.inputs ?? {}).map(([key, _value], idx) => (
+			{Object.entries(node.inputData ?? {}).map(([key, _value], idx) => (
 				<Handle
 					key={key}
 					type="target"
@@ -33,7 +30,7 @@ export function NodeComponent({
 				<div className="text-xs text-gray-500">{node.id}</div>
 			</div>
 
-			{Object.entries(node.outputs ?? {}).map(([key, _value]) => (
+			{Object.entries(node.outputData ?? {}).map(([key, _value]) => (
 				<Handle
 					key={key}
 					type="source"

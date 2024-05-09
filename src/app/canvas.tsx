@@ -7,7 +7,6 @@ import ReactFlow, {
 	applyNodeChanges,
 	Background,
 	Connection,
-	Controls,
 	Edge,
 	EdgeChange,
 	Node,
@@ -51,14 +50,13 @@ export function Canvas() {
 			const targetNode = nodeManager.getNode(connection.target)
 			if (!sourceNode || !targetNode) return
 
-			const sourceOutput = sourceNode.getOutput(connection.sourceHandle)
+			const sourceOutput = sourceNode.getOutputData(connection.sourceHandle)
 			if (!sourceOutput) return
 
-			targetNode.setInput(connection.targetHandle, {
+			targetNode.setInputData(connection.targetHandle, {
 				fromNodeID: sourceNode.id,
 				outputName: connection.sourceHandle,
 			})
-			console.log(targetNode)
 
 			setCanvasEdges((eds) => addEdge(connection, eds))
 		},
@@ -102,7 +100,6 @@ export function Canvas() {
 				onConnect={onConnect}
 			>
 				<Background />
-				<Controls />
 			</ReactFlow>
 		</div>
 	)

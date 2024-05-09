@@ -18,6 +18,7 @@ module.exports = {
 		"unused-imports",
 	],
 	rules: {
+		"prefer-const": "off",
 		"react/react-in-jsx-scope": "off",
 		"simple-import-sort/imports": [
 			"error",
