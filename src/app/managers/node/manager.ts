@@ -30,7 +30,7 @@ export class NodeManager {
 	private setupListeners(node: BaseNode) {
 		let subscriptions: (() => void)[] = []
 
-		const inputSubscription = subscribe(node.inputData, () => {
+		let inputSubscription = subscribe(node.inputData, () => {
 			let inputEntries = Object.entries(node.inputData)
 
 			this.outputSubscriptions.get(node.id)?.forEach((s) => s())
@@ -58,6 +58,11 @@ export class NodeManager {
 		this.inputSubscriptions.set(node.id, inputSubscription)
 		this.outputSubscriptions.set(node.id, subscriptions)
 	}
+
+	removeConnections({ toNodeID, toKey }: { toNodeID: string; toKey: string }) {
+		let toNode = this.getNode(toNodeID)
+		toNode?.removeInputData(toKey)
+	}
 }
 
 export const nodeManager = new NodeManager()
@@ -67,6 +72,6 @@ export function useNodes() {
 }
 
 export function useNode(id: string) {
-	const state = useSnapshot(nodeManager.nodes)
+	let state = useSnapshot(nodeManager.nodes)
 	return state.get(id)
 }

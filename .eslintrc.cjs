@@ -16,9 +16,11 @@ module.exports = {
 		"simple-import-sort",
 		"import",
 		"unused-imports",
+		"prefer-let",
 	],
 	rules: {
 		"prefer-const": "off",
+		"prefer-let/prefer-let": 2,
 		"react/react-in-jsx-scope": "off",
 		"simple-import-sort/imports": [
 			"error",

@@ -3,14 +3,14 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { dragManager } from "./manager"
 
 export function useDragNode(type: string) {
-	const [isDragging, setIsDragging] = useState(false)
+	let [isDragging, setIsDragging] = useState(false)
 
-	const timerRef = useRef<number | null>(null)
+	let timerRef = useRef<number | null>(null)
 
-	const onPointerDown = useCallback(
+	let onPointerDown = useCallback(
 		(e: React.PointerEvent) => {
-			const x = e.pageX
-			const y = e.pageY
+			let x = e.pageX
+			let y = e.pageY
 			dragManager.state.position = {
 				x,
 				y,
@@ -24,7 +24,7 @@ export function useDragNode(type: string) {
 	)
 
 	useEffect(() => {
-		const onPointerMove = (e: PointerEvent) => {
+		let onPointerMove = (e: PointerEvent) => {
 			if (!isDragging) {
 				return
 			}
@@ -33,7 +33,7 @@ export function useDragNode(type: string) {
 				y: e.pageY,
 			}
 		}
-		const onPointerUp = () => {
+		let onPointerUp = () => {
 			if (timerRef.current) {
 				clearTimeout(timerRef.current)
 			}

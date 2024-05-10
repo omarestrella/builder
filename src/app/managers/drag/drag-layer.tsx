@@ -1,8 +1,8 @@
 import { useDragState } from "./manager"
 
 export function DragLayer() {
-	const { draggingType, position } = useDragState()
-	const isDragging = draggingType !== null
+	let { draggingType, position } = useDragState()
+	let isDragging = draggingType !== null
 
 	if (!isDragging) {
 		return null

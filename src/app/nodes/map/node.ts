@@ -5,20 +5,21 @@ import { Component } from "./component"
 
 const inputs = z.object({})
 const outputs = z.object({
-	number: z.number(),
+	lat: z.number(),
+	long: z.number(),
 })
 
-export class NumberNode extends BaseNode {
-	static type = "NUMBER"
-
-	name = "Number"
-
+export class MapNode extends BaseNode<typeof inputs, typeof outputs> {
 	definition = {
 		inputs,
 		outputs,
 	}
 
-	component(props: { node: NumberNode }): JSX.Element {
+	name = "Map"
+
+	static type = "MAP"
+
+	component(props: { node: MapNode }): JSX.Element {
 		return Component(props)
 	}
 }

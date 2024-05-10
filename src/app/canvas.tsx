@@ -11,6 +11,7 @@ import ReactFlow, {
 	EdgeChange,
 	Node,
 	NodeChange,
+	SelectionMode,
 	useReactFlow,
 } from "reactflow"
 
@@ -20,37 +21,48 @@ import { NodeComponent } from "./nodes/node-component"
 import { nodeFromType } from "./nodes/nodes"
 
 export function Canvas() {
-	const [canvasNodes, setCanvasNodes] = useState<Node[]>([])
-	const [canvasEdges, setCanvasEdges] = useState<Edge[]>([])
+	let [canvasNodes, setCanvasNodes] = useState<Node[]>([])
+	let [canvasEdges, setCanvasEdges] = useState<Edge[]>([])
 
-	const nodeTypes = useMemo(() => ({ node: NodeComponent }), [])
+	let nodeTypes = useMemo(() => ({ node: NodeComponent }), [])
 
-	const reactFlow = useReactFlow()
+	let reactFlow = useReactFlow()
 
-	const onNodesChange = useCallback(
+	let onNodesChange = useCallback(
 		(changes: NodeChange[]) => {
 			setCanvasNodes((nds) => applyNodeChanges(changes, nds))
 		},
 		[setCanvasNodes],
 	)
 
-	const onEdgesChange = useCallback(
+	let onEdgesChange = useCallback(
 		(changes: EdgeChange[]) => {
 			setCanvasEdges((nds) => applyEdgeChanges(changes, nds))
 		},
 		[setCanvasEdges],
 	)
 
-	const onConnect = useCallback(
+	let onEdgesDelete = useCallback((edges: Edge[]) => {
+		edges.forEach((edge) => {
+			if (!edge.sourceHandle || !edge.targetHandle) return
+
+			nodeManager.removeConnections({
+				toNodeID: edge.target,
+				toKey: edge.targetHandle,
+			})
+		})
+	}, [])
+
+	let onConnect = useCallback(
 		(connection: Connection) => {
 			if (!connection.source || !connection.target) return
 			if (!connection.sourceHandle || !connection.targetHandle) return
 
-			const sourceNode = nodeManager.getNode(connection.source)
-			const targetNode = nodeManager.getNode(connection.target)
+			let sourceNode = nodeManager.getNode(connection.source)
+			let targetNode = nodeManager.getNode(connection.target)
 			if (!sourceNode || !targetNode) return
 
-			const sourceOutput = sourceNode.getOutputData(connection.sourceHandle)
+			let sourceOutput = sourceNode.getOutputData(connection.sourceHandle)
 			if (!sourceOutput) return
 
 			targetNode.setInputData(connection.targetHandle, {
@@ -63,15 +75,15 @@ export function Canvas() {
 		[setCanvasEdges],
 	)
 
-	const onNodeDrop = useCallback(
+	let onNodeDrop = useCallback(
 		(type: string, { x, y }: { x: number; y: number }) => {
-			const position = reactFlow.screenToFlowPosition({
+			let position = reactFlow.screenToFlowPosition({
 				x: x,
 				y: y,
 			})
 
 			// i actually dont care about the typing here
-			const node = nodeFromType(type)
+			let node = nodeFromType(type)
 			nodeManager.addNode(node)
 
 			setCanvasNodes((nodes) => [
@@ -97,7 +109,11 @@ export function Canvas() {
 				nodeTypes={nodeTypes}
 				onNodesChange={onNodesChange}
 				onEdgesChange={onEdgesChange}
+				onEdgesDelete={onEdgesDelete}
 				onConnect={onConnect}
+				selectionMode={SelectionMode.Partial}
+				panOnScroll
+				selectionOnDrag
 			>
 				<Background />
 			</ReactFlow>

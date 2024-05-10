@@ -1,28 +1,22 @@
-import { AddNode } from "./add/node"
-import { BaseNode } from "./base"
-import { NumberNode } from "./number/node"
-import { SubtractNode } from "./subtract/node"
+import { DebugNode } from "./debug/node"
+import { InputNode } from "./input/node"
+import { MapNode } from "./map/node"
 
-export { AddNode, NumberNode, SubtractNode }
+export { DebugNode, InputNode, MapNode }
+
+export const ALL_NODES = [InputNode, MapNode, DebugNode]
 
 export * from "./base"
 
 export function nodeFromType(type: string) {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let node: BaseNode
-	switch (type) {
-		case NumberNode.type:
-			node = new NumberNode()
-			break
-		case AddNode.type:
-			node = new AddNode()
-			break
-		case SubtractNode.type:
-			node = new SubtractNode()
-			break
-		default:
-			throw new Error(`Unknown node type: ${type}`)
+	let NodeDef = ALL_NODES.find((node) => node.type === type)
+
+	if (!NodeDef) {
+		throw new Error(`Unknown node type: ${type}`)
 	}
+
+	let node = new NodeDef()
+
 	node.initialize()
 	return node
 }

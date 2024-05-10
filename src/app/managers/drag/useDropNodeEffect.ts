@@ -8,7 +8,7 @@ export function useDropNodeEffect(
 	useEffect(() => {
 		let lastDraggingType: string | null = null
 
-		const unsubscribe = dragManager.subscribe((state) => {
+		let unsubscribe = dragManager.subscribe((state) => {
 			if (state.draggingType) {
 				lastDraggingType = state.draggingType
 			}
