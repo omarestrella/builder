@@ -14,8 +14,6 @@ export class InputNode extends BaseNode<typeof inputs, typeof outputs> {
 		outputs,
 	}
 
-	name = "Input"
-
 	static type = "INPUT"
 
 	component(props: { node: InputNode }): JSX.Element {

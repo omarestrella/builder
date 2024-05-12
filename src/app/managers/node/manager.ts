@@ -59,6 +59,30 @@ export class NodeManager {
 		this.outputSubscriptions.set(node.id, subscriptions)
 	}
 
+	addConnection({
+		fromNodeID,
+		toNodeID,
+		fromKey,
+		toKey,
+	}: {
+		fromNodeID: string
+		toNodeID: string
+		fromKey: string
+		toKey: string
+	}) {
+		let sourceNode = this.getNode(fromNodeID)
+		let targetNode = this.getNode(toNodeID)
+
+		if (!sourceNode || !targetNode) {
+			return
+		}
+
+		targetNode.setInputData(toKey, {
+			fromNodeID: sourceNode.id,
+			outputName: fromKey,
+		})
+	}
+
 	removeConnections({ toNodeID, toKey }: { toNodeID: string; toKey: string }) {
 		let toNode = this.getNode(toNodeID)
 		toNode?.removeInputData(toKey)

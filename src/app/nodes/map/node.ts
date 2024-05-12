@@ -15,8 +15,6 @@ export class MapNode extends BaseNode<typeof inputs, typeof outputs> {
 		outputs,
 	}
 
-	name = "Map"
-
 	static type = "MAP"
 
 	component(props: { node: MapNode }): JSX.Element {

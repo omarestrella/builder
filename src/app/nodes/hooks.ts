@@ -19,3 +19,8 @@ export function useNodeInputs<
 	let inputs = useSnapshot(node.inputs)
 	return inputs as Partial<Inputs>
 }
+
+export function useNodeName(node: BaseNode) {
+	let meta = useSnapshot(node.meta)
+	return meta.name
+}

@@ -17,14 +17,14 @@ import ReactFlow, {
 
 import { useDropNodeEffect } from "./managers/drag/useDropNodeEffect"
 import { nodeManager } from "./managers/node/manager"
-import { NodeComponent } from "./nodes/node-component"
+import { CanvasNode } from "./nodes/components/canvas-node"
 import { nodeFromType } from "./nodes/nodes"
 
 export function Canvas() {
 	let [canvasNodes, setCanvasNodes] = useState<Node[]>([])
 	let [canvasEdges, setCanvasEdges] = useState<Edge[]>([])
 
-	let nodeTypes = useMemo(() => ({ node: NodeComponent }), [])
+	let nodeTypes = useMemo(() => ({ node: CanvasNode }), [])
 
 	let reactFlow = useReactFlow()
 
@@ -58,16 +58,11 @@ export function Canvas() {
 			if (!connection.source || !connection.target) return
 			if (!connection.sourceHandle || !connection.targetHandle) return
 
-			let sourceNode = nodeManager.getNode(connection.source)
-			let targetNode = nodeManager.getNode(connection.target)
-			if (!sourceNode || !targetNode) return
-
-			let sourceOutput = sourceNode.getOutputData(connection.sourceHandle)
-			if (!sourceOutput) return
-
-			targetNode.setInputData(connection.targetHandle, {
-				fromNodeID: sourceNode.id,
-				outputName: connection.sourceHandle,
+			nodeManager.addConnection({
+				fromNodeID: connection.source,
+				toNodeID: connection.target,
+				fromKey: connection.sourceHandle,
+				toKey: connection.targetHandle,
 			})
 
 			setCanvasEdges((eds) => addEdge(connection, eds))
@@ -82,7 +77,6 @@ export function Canvas() {
 				y: y,
 			})
 
-			// i actually dont care about the typing here
 			let node = nodeFromType(type)
 			nodeManager.addNode(node)
 

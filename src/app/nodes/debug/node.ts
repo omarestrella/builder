@@ -14,8 +14,6 @@ export class DebugNode extends BaseNode<typeof inputs, typeof outputs> {
 		outputs,
 	}
 
-	name = "Debug"
-
 	static type = "DEBUG"
 
 	component(props: { node: DebugNode }): JSX.Element {

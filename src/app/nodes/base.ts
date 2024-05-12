@@ -36,12 +36,23 @@ export abstract class BaseNode<
 	inputs: Record<InputKey, InputValue> = proxy({} as never)
 	outputs: Record<OutputKey, OutputValue> = proxy({} as never)
 
-	abstract name: string
+	meta = proxy({
+		name: "",
+		notes: "",
+	})
+
 	abstract definition: {
 		inputs: Schema
 		outputs: Schema
 	}
 	abstract component(props: { node: BaseNode }): JSX.Element
+
+	constructor() {
+		// good enough for now
+		this.meta.name =
+			this.type.substring(0, 1).toUpperCase() +
+			this.type.substring(1).toLowerCase()
+	}
 
 	initialize() {
 		let inputKeys = getSchemaKeys(this.definition.inputs) as InputKey[]
@@ -101,6 +112,14 @@ export abstract class BaseNode<
 
 	protected writeOutputs() {
 		console.warn("writeOutputs not implemented.")
+	}
+
+	get type() {
+		return (<typeof BaseNode>this.constructor).type
+	}
+
+	get name() {
+		return this.meta.name
 	}
 }
 
