@@ -1,4 +1,6 @@
-import { Handle, NodeProps, Position } from "reactflow"
+import { ErrorBoundary } from "react-error-boundary"
+import { Handle, NodeProps, Position, useUpdateNodeInternals } from "reactflow"
+import { useSnapshot } from "valtio"
 
 import { Tooltip } from "../../components/tooltip"
 import { BaseNode } from "../base"
@@ -7,36 +9,67 @@ import { NodeWrapper } from "./node"
 
 export function CanvasNode({ data: node, selected }: NodeProps<BaseNode>) {
 	return (
-		<NodeWrapper
-			node={node}
-			selected={selected}
-			inputs={<Inputs node={node} />}
-			outputs={<Outputs node={node} />}
-		/>
+		<ErrorBoundary
+			onError={(error, info) => console.error(error, info)}
+			fallback={<div>Something went wrong</div>}
+		>
+			<NodeWrapper
+				node={node}
+				selected={selected}
+				inputs={<Inputs node={node} />}
+				outputs={<Outputs node={node} />}
+			/>
+		</ErrorBoundary>
 	)
 }
 
 function Inputs({ node }: { node: BaseNode }) {
-	let inputData = Object.entries(node.inputData ?? {})
+	let updateNodeInternals = useUpdateNodeInternals()
 
-	return inputData.length > 0 ? (
+	let inputData = Object.entries(useSnapshot(node.inputData))
+
+	return (
 		<div className="flex flex-col gap-2 border-b p-2">
 			<p className="m-0 text-xs font-bold">Inputs</p>
-			<div className="relative flex gap-2">
-				{inputData.map(([key, _value]) => (
-					<Handle
-						key={key}
-						type="target"
-						position={Position.Top}
-						id={key}
-						className="!relative !inset-x-auto !top-auto !h-5 !w-fit !transform-none !rounded-sm px-1 text-xs text-white"
+
+			<div className="flex gap-2">
+				{inputData.length > 0 ? (
+					<div className="flex flex-col gap-2">
+						<div className="relative flex gap-2">
+							{inputData.map(([key, _value]) => (
+								<Handle
+									key={key}
+									type="target"
+									position={Position.Top}
+									id={key}
+									className="!relative !inset-x-auto !top-auto flex !h-5 !w-fit !transform-none items-center !rounded-sm !border-none !bg-black px-1 text-xs text-white"
+								>
+									{key}
+								</Handle>
+							))}
+						</div>
+					</div>
+				) : null}
+				{node.dynamic ? (
+					<button
+						className="flex h-5 items-center rounded-sm bg-black px-1 text-xs text-white"
+						onClick={() => {
+							let name = window.prompt("Enter the name of the argument")
+							if (name) {
+								node.setInputData(name, {
+									fromNodeID: undefined,
+									outputName: undefined,
+								})
+								updateNodeInternals(name)
+							}
+						}}
 					>
-						{key}
-					</Handle>
-				))}
+						+ add arg
+					</button>
+				) : null}
 			</div>
 		</div>
-	) : null
+	)
 }
 
 function Outputs({ node }: { node: BaseNode }) {

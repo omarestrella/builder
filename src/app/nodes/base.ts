@@ -13,7 +13,7 @@ type InputData = {
 	outputName?: string
 }
 
-export type Schema = z.AnyZodObject
+export type Schema = z.AnyZodObject | z.ZodRecord
 
 export type Definition<T extends Schema> = z.TypeOf<T>
 
@@ -40,6 +40,8 @@ export abstract class BaseNode<
 		name: "",
 		notes: "",
 	})
+
+	dynamic = false
 
 	abstract definition: {
 		inputs: Schema
@@ -87,7 +89,17 @@ export abstract class BaseNode<
 		{ fromNodeID, outputName }: Omit<InputData, "id">,
 	) {
 		if (!this.inputData) throw new Error("Inputs not initialized")
-		if (!this.inputData[key]) throw new Error("Input key not found")
+		if (!this.inputData[key]) {
+			if (!this.dynamic) {
+				throw new Error("Input key not found")
+			} else {
+				this.inputData[key] = {
+					id: crypto.randomUUID(),
+					fromNodeID: undefined,
+					outputName: undefined,
+				}
+			}
+		}
 
 		this.inputData[key].fromNodeID = fromNodeID
 		this.inputData[key].outputName = outputName
