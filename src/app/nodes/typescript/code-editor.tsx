@@ -1,9 +1,11 @@
 import { indentWithTab } from "@codemirror/commands"
 import { javascript } from "@codemirror/lang-javascript"
-import { EditorState } from "@codemirror/state"
+import { Compartment, EditorState } from "@codemirror/state"
 import { EditorView, keymap } from "@codemirror/view"
 import { basicSetup } from "codemirror"
 import { useEffect, useRef } from "react"
+
+let onChangeCompartment = new Compartment()
 
 export default function CodeEditor({
 	onChange,
@@ -17,16 +19,18 @@ export default function CodeEditor({
 
 		// write code attach codemirror editor to containerRef, using react
 		let startState = EditorState.create({
-			doc: "return inputs",
+			doc: "",
 			extensions: [
 				basicSetup,
 				keymap.of([indentWithTab]),
+				onChangeCompartment.of([
+					EditorView.updateListener.of((update) => {
+						if (update.docChanged) {
+							onChange(update.view.state.doc.toString())
+						}
+					}),
+				]),
 				javascript(),
-				EditorView.updateListener.of((update) => {
-					if (update.docChanged) {
-						onChange(update.view.state.doc.toString())
-					}
-				}),
 			],
 		})
 
@@ -39,6 +43,17 @@ export default function CodeEditor({
 		return () => {
 			view.destroy()
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
+
+	useEffect(() => {
+		onChangeCompartment.reconfigure([
+			EditorView.updateListener.of((update) => {
+				if (update.docChanged) {
+					onChange(update.view.state.doc.toString())
+				}
+			}),
+		])
 	}, [onChange])
 
 	return (

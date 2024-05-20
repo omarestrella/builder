@@ -1,21 +1,33 @@
-import { lazy, Suspense, useCallback } from "react"
+import { lazy, Suspense, useCallback, useEffect, useState } from "react"
 
-import { useNodeInputs, useNodeOutput } from "../hooks"
+import { useNodeInputs } from "../hooks"
 import { TypeScriptNode } from "./node"
 
 const CodeEditor = lazy(() => import("./code-editor"))
 
 export function Component({ node }: { node: TypeScriptNode }) {
 	let inputs = useNodeInputs(node)
-	let output = useNodeOutput(node, "result")
+
+	let [code, setCode] = useState("")
+
+	console.log("inputs", inputs)
 
 	let onChange = useCallback((code: string) => {
-		// this is so bad, but i dont care right now
-		let result = eval(`(() => {
-			${code}
-		})()`)
-		console.log("result", result)
+		setCode(code)
 	}, [])
+
+	useEffect(() => {
+		try {
+			// this is so bad, but i dont care right now
+			let fn = eval(`((inputs) => {
+			${code}
+		})`)
+			let result = fn({ ...inputs })
+			node.setOutput("result", result)
+		} catch {
+			// dont care right now
+		}
+	}, [code, inputs, node])
 
 	return (
 		<div className="flex max-w-72 flex-col gap-2">

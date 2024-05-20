@@ -28,6 +28,10 @@ function Inputs({ node }: { node: BaseNode }) {
 
 	let inputData = Object.entries(useSnapshot(node.inputData))
 
+	if (!node.dynamic && inputData.length === 0) {
+		return null
+	}
+
 	return (
 		<div className="flex flex-col gap-2 border-b p-2">
 			<p className="m-0 text-xs font-bold">Inputs</p>
@@ -60,7 +64,7 @@ function Inputs({ node }: { node: BaseNode }) {
 									fromNodeID: undefined,
 									outputName: undefined,
 								})
-								updateNodeInternals(name)
+								updateNodeInternals(node.id)
 							}
 						}}
 					>

@@ -17,24 +17,30 @@ export type Schema = z.AnyZodObject | z.ZodRecord
 
 export type Definition<T extends Schema> = z.TypeOf<T>
 
+type SchemaKey<D extends Schema> = keyof z.TypeOf<D>
+type SchemaValue<D extends Schema> = z.TypeOf<D>[SchemaKey<D>]
+
 // this can probably be typed better, but I dont care right now
 export abstract class BaseNode<
 	InputDef extends Schema = Schema,
 	OutputDef extends Schema = Schema,
-	InputKey extends keyof z.TypeOf<InputDef> = keyof z.TypeOf<InputDef>,
-	OutputKey extends keyof z.TypeOf<OutputDef> = keyof z.TypeOf<OutputDef>,
-	InputValue = z.TypeOf<InputDef>[InputKey],
-	OutputValue = z.TypeOf<OutputDef>[OutputKey],
+	PropertiesDef extends Schema = never,
 > {
 	static type: string
 
 	id = crypto.randomUUID()
 
-	inputData: Record<InputKey, InputData> = proxy({} as never)
-	outputData: Record<OutputKey, OutputData> = proxy({} as never)
+	inputData: Record<SchemaKey<InputDef>, InputData> = proxy({} as never)
+	outputData: Record<SchemaKey<OutputDef>, OutputData> = proxy({} as never)
 
-	inputs: Record<InputKey, InputValue> = proxy({} as never)
-	outputs: Record<OutputKey, OutputValue> = proxy({} as never)
+	inputs: Record<SchemaKey<InputDef>, SchemaValue<InputDef>> = proxy(
+		{} as never,
+	)
+	outputs: Record<SchemaKey<OutputDef>, SchemaValue<OutputDef>> = proxy(
+		{} as never,
+	)
+	properties: Record<SchemaKey<PropertiesDef>, SchemaValue<PropertiesDef>> =
+		proxy({} as never)
 
 	meta = proxy({
 		name: "",
@@ -57,8 +63,12 @@ export abstract class BaseNode<
 	}
 
 	initialize() {
-		let inputKeys = getSchemaKeys(this.definition.inputs) as InputKey[]
-		let outputKeys = getSchemaKeys(this.definition.outputs) as OutputKey[]
+		let inputKeys = getSchemaKeys(
+			this.definition.inputs,
+		) as SchemaKey<InputDef>[]
+		let outputKeys = getSchemaKeys(
+			this.definition.outputs,
+		) as SchemaKey<OutputDef>[]
 
 		inputKeys.forEach((key) => {
 			this.inputData[key] = {
@@ -75,17 +85,17 @@ export abstract class BaseNode<
 		})
 	}
 
-	setOutput(key: OutputKey, value: OutputValue) {
+	setOutput(key: SchemaKey<OutputDef>, value: SchemaValue<OutputDef>) {
 		this.outputs[key] = value
 	}
 
-	setInput(key: InputKey, value: InputValue) {
+	setInput(key: SchemaKey<InputDef>, value: SchemaValue<InputDef>) {
 		this.inputs[key] = value
 		this.writeOutputs()
 	}
 
 	setInputData(
-		key: InputKey,
+		key: SchemaKey<InputDef>,
 		{ fromNodeID, outputName }: Omit<InputData, "id">,
 	) {
 		if (!this.inputData) throw new Error("Inputs not initialized")
@@ -105,7 +115,7 @@ export abstract class BaseNode<
 		this.inputData[key].outputName = outputName
 	}
 
-	removeInputData(key: InputKey) {
+	removeInputData(key: SchemaKey<InputDef>) {
 		if (!this.inputData) throw new Error("Inputs not initialized")
 
 		delete this.inputs[key]
@@ -113,7 +123,7 @@ export abstract class BaseNode<
 		this.inputData[key].outputName = undefined
 	}
 
-	getOutputData(name: OutputKey): OutputData | undefined {
+	getOutputData(name: SchemaKey<OutputDef>): OutputData | undefined {
 		if (!this.outputData) throw new Error("Outputs not initialized")
 		return this.outputData?.[name]
 	}
