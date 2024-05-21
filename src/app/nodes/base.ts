@@ -24,11 +24,11 @@ type SchemaValue<D extends Schema> = z.TypeOf<D>[SchemaKey<D>]
 export abstract class BaseNode<
 	InputDef extends Schema = Schema,
 	OutputDef extends Schema = Schema,
-	PropertiesDef extends Schema = never,
+	PropertiesDef extends Schema = Schema,
 > {
 	static type: string
 
-	id = crypto.randomUUID()
+	id: string
 
 	inputData: Record<SchemaKey<InputDef>, InputData> = proxy({} as never)
 	outputData: Record<SchemaKey<OutputDef>, OutputData> = proxy({} as never)
@@ -39,12 +39,17 @@ export abstract class BaseNode<
 	outputs: Record<SchemaKey<OutputDef>, SchemaValue<OutputDef>> = proxy(
 		{} as never,
 	)
-	properties: Record<SchemaKey<PropertiesDef>, SchemaValue<PropertiesDef>> =
-		proxy({} as never)
+	properties: Partial<
+		Record<SchemaKey<PropertiesDef>, SchemaValue<PropertiesDef>>
+	> = proxy({} as never)
 
 	meta = proxy({
 		name: "",
 		notes: "",
+		position: {
+			x: 0,
+			y: 0,
+		},
 	})
 
 	dynamic = false
@@ -52,23 +57,29 @@ export abstract class BaseNode<
 	abstract definition: {
 		inputs: Schema
 		outputs: Schema
+		properties?: Schema
 	}
 	abstract component(props: { node: BaseNode }): JSX.Element
 
-	constructor() {
+	constructor(id?: string) {
+		this.id = id ?? crypto.randomUUID()
+
 		// good enough for now
 		this.meta.name =
 			this.type.substring(0, 1).toUpperCase() +
 			this.type.substring(1).toLowerCase()
 	}
 
-	initialize() {
+	initialize(nodeData?: ReturnType<BaseNode["toJSON"]>) {
 		let inputKeys = getSchemaKeys(
 			this.definition.inputs,
 		) as SchemaKey<InputDef>[]
 		let outputKeys = getSchemaKeys(
 			this.definition.outputs,
 		) as SchemaKey<OutputDef>[]
+		let propertyKeys = getSchemaKeys(
+			this.definition.outputs,
+		) as SchemaKey<PropertiesDef>[]
 
 		inputKeys.forEach((key) => {
 			this.inputData[key] = {
@@ -83,6 +94,30 @@ export abstract class BaseNode<
 				id: crypto.randomUUID(),
 			}
 		})
+
+		if (nodeData) {
+			Object.entries(nodeData.inputData).forEach(([key, value]) => {
+				this.setInputData(key, {
+					fromNodeID: value.fromNodeID,
+					outputName: value.outputName,
+				})
+			})
+			Object.entries(nodeData.outputData).forEach(([key, value]) => {
+				this.setOutputData(key, {
+					from: value.from,
+					to: value.to,
+				})
+			})
+		}
+
+		propertyKeys.forEach((key) => {
+			this.properties[key] = nodeData?.properties[key as string]
+		})
+
+		Object.entries(this.meta).forEach(([mKey, _value]) => {
+			let key = mKey as never // dont care atm
+			this.meta[key] = (nodeData?.meta[key] ?? this.meta[key]) as never
+		})
 	}
 
 	setOutput(key: SchemaKey<OutputDef>, value: SchemaValue<OutputDef>) {
@@ -91,7 +126,13 @@ export abstract class BaseNode<
 
 	setInput(key: SchemaKey<InputDef>, value: SchemaValue<InputDef>) {
 		this.inputs[key] = value
-		this.writeOutputs()
+	}
+
+	setProperty(
+		key: SchemaKey<PropertiesDef>,
+		value: SchemaValue<PropertiesDef>,
+	) {
+		this.properties[key] = value
 	}
 
 	setInputData(
@@ -115,6 +156,13 @@ export abstract class BaseNode<
 		this.inputData[key].outputName = outputName
 	}
 
+	setOutputData(key: SchemaKey<OutputDef>, data: Omit<OutputData, "id">) {
+		if (!this.outputData || !this.outputData[key])
+			throw new Error("Outputs not initialized")
+		this.outputData[key].from = data.from
+		this.outputData[key].to = data.to
+	}
+
 	removeInputData(key: SchemaKey<InputDef>) {
 		if (!this.inputData) throw new Error("Inputs not initialized")
 
@@ -132,16 +180,25 @@ export abstract class BaseNode<
 		return null
 	}
 
-	protected writeOutputs() {
-		console.warn("writeOutputs not implemented.")
-	}
-
 	get type() {
 		return (<typeof BaseNode>this.constructor).type
 	}
 
 	get name() {
 		return this.meta.name
+	}
+
+	toJSON() {
+		return {
+			id: this.id,
+			type: this.type,
+			inputs: { ...this.inputs },
+			inputData: { ...this.inputData },
+			outputs: { ...this.outputs },
+			outputData: { ...this.outputData },
+			properties: { ...this.properties },
+			meta: { ...this.meta },
+		}
 	}
 }
 

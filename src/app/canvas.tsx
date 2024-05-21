@@ -1,6 +1,6 @@
 import "reactflow/dist/style.css"
 
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import ReactFlow, {
 	addEdge,
 	applyEdgeChanges,
@@ -15,12 +15,15 @@ import ReactFlow, {
 	useReactFlow,
 } from "reactflow"
 
+import { useThrottle } from "./hooks/use-throttle"
 import { useDropNodeEffect } from "./managers/drag/useDropNodeEffect"
 import { nodeManager } from "./managers/node/manager"
 import { CanvasNode } from "./nodes/components/canvas-node"
 import { nodeFromType } from "./nodes/nodes"
 
 export function Canvas() {
+	let initializedRef = useRef(false)
+
 	let [canvasNodes, setCanvasNodes] = useState<Node[]>([])
 	let [canvasEdges, setCanvasEdges] = useState<Edge[]>([])
 
@@ -28,11 +31,28 @@ export function Canvas() {
 
 	let reactFlow = useReactFlow()
 
+	let writeChanges = useCallback((changes: NodeChange[]) => {
+		changes.forEach((change) => {
+			if (change.type === "position") {
+				let node = nodeManager.getNode(change.id)
+				if (!node || !change.position) return
+
+				node.meta.position = change.position
+			}
+			if (change.type === "remove") {
+				nodeManager.removeNode(change.id)
+			}
+		})
+	}, [])
+
+	let throttledWriteChanges = useThrottle(writeChanges, 100, true)
+
 	let onNodesChange = useCallback(
 		(changes: NodeChange[]) => {
+			throttledWriteChanges(changes)
 			setCanvasNodes((nds) => applyNodeChanges(changes, nds))
 		},
-		[setCanvasNodes],
+		[setCanvasNodes, throttledWriteChanges],
 	)
 
 	let onEdgesChange = useCallback(
@@ -65,6 +85,8 @@ export function Canvas() {
 				toKey: connection.targetHandle,
 			})
 
+			console.log("onConnect", connection)
+
 			setCanvasEdges((eds) => addEdge(connection, eds))
 		},
 		[setCanvasEdges],
@@ -94,6 +116,58 @@ export function Canvas() {
 	)
 
 	useDropNodeEffect(onNodeDrop)
+
+	useEffect(() => {
+		if (initializedRef.current) return
+
+		let nodes = nodeManager.initialize()
+
+		setCanvasNodes(
+			nodes.map((node) => ({
+				id: node.id,
+				position: node.meta.position,
+				data: node,
+				type: "node",
+			})),
+		)
+
+		let edges: Edge[] = nodes.flatMap((inputNode) => {
+			return Object.entries(inputNode.inputData)
+				.map(([_key, input]) => {
+					if (!input.fromNodeID || !input.outputName) return
+
+					let outputNode = nodeManager.getNode(input.fromNodeID)
+					if (!outputNode) return
+
+					let outputData = outputNode.outputData[
+						input.outputName as never
+					] as Record<string, unknown>
+
+					if (!outputData || !outputData.to || !outputData.from) return
+
+					return {
+						id: crypto.randomUUID(),
+						source: outputNode.id,
+						sourceHandle: outputData.from,
+						target: inputNode.id,
+						targetHandle: outputData.to,
+					}
+				})
+				.filter((e) => !!e) as Edge[]
+		})
+		setCanvasEdges(edges)
+
+		edges.forEach((edge) => {
+			nodeManager.addConnection({
+				fromNodeID: edge.source,
+				toNodeID: edge.target,
+				fromKey: edge.sourceHandle!,
+				toKey: edge.targetHandle!,
+			})
+		})
+
+		initializedRef.current = true
+	}, [])
 
 	return (
 		<div className="size-full">

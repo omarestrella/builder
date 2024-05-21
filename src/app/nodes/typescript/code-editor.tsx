@@ -6,10 +6,20 @@ import { basicSetup } from "codemirror"
 import { useEffect, useRef } from "react"
 
 let onChangeCompartment = new Compartment()
+const theme = new Compartment()
+
+const baseTheme = EditorView.theme({
+	".cm-content": {
+		fontFamily: "'JetBrains Mono', Menlo, Monaco, Lucida Console, monospace",
+		fontSize: "13px",
+	},
+})
 
 export default function CodeEditor({
+	initialCode,
 	onChange,
 }: {
+	initialCode: string
 	onChange: (code: string) => void
 }) {
 	let containerRef = useRef<HTMLDivElement>(null)
@@ -19,7 +29,7 @@ export default function CodeEditor({
 
 		// write code attach codemirror editor to containerRef, using react
 		let startState = EditorState.create({
-			doc: "",
+			doc: initialCode,
 			extensions: [
 				basicSetup,
 				keymap.of([indentWithTab]),
@@ -30,6 +40,7 @@ export default function CodeEditor({
 						}
 					}),
 				]),
+				theme.of([baseTheme]),
 				javascript(),
 			],
 		})
@@ -58,7 +69,7 @@ export default function CodeEditor({
 
 	return (
 		// eslint-disable-next-line tailwindcss/no-custom-classname
-		<div className="nodrag nowheel h-48 w-64 cursor-text overflow-auto">
+		<div className="nodrag nowheel h-48 w-64 cursor-text overflow-auto [&_.cm-editor]:size-full [&_.cm-editor]:outline-none">
 			<div ref={containerRef} className="size-full" />
 		</div>
 	)

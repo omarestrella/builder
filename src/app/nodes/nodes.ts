@@ -1,3 +1,4 @@
+import { BaseNode } from "./base"
 import { DebugNode } from "./debug/node"
 import { InputNode } from "./input/node"
 import { MapNode } from "./map/node"
@@ -9,15 +10,19 @@ export const ALL_NODES = [InputNode, MapNode, TypeScriptNode, DebugNode]
 
 export * from "./base"
 
-export function nodeFromType(type: string) {
+export function nodeFromType(
+	type: string,
+	id?: string,
+	nodeData?: ReturnType<BaseNode["toJSON"]>,
+) {
 	let NodeDef = ALL_NODES.find((node) => node.type === type)
 
 	if (!NodeDef) {
 		throw new Error(`Unknown node type: ${type}`)
 	}
 
-	let node = new NodeDef()
+	let node = new NodeDef(id)
 
-	node.initialize()
+	node.initialize(nodeData)
 	return node
 }

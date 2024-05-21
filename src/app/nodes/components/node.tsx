@@ -30,7 +30,7 @@ export function NodeWrapper({
 
 			{inputs}
 
-			<div className="border-b p-2">
+			<div className="border-b p-2 last-of-type:border-none">
 				<node.component node={node} />
 			</div>
 

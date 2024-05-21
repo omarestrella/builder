@@ -1,39 +1,47 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from "react"
 
-import { useNodeInputs } from "../hooks"
+import { useNodeInputs, useNodeProperty } from "../hooks"
 import { TypeScriptNode } from "./node"
 
 const CodeEditor = lazy(() => import("./code-editor"))
 
 export function Component({ node }: { node: TypeScriptNode }) {
 	let inputs = useNodeInputs(node)
-
-	let [code, setCode] = useState("")
-
 	console.log("inputs", inputs)
+	let code = useNodeProperty(node, "code")
 
-	let onChange = useCallback((code: string) => {
-		setCode(code)
-	}, [])
+	let [error, setError] = useState<string | null>(null)
+
+	let onChange = useCallback(
+		(code: string) => {
+			node.setProperty("code", code)
+		},
+		[node],
+	)
 
 	useEffect(() => {
 		try {
 			// this is so bad, but i dont care right now
 			let fn = eval(`((inputs) => {
-			${code}
-		})`)
+				Object.entries(inputs).forEach(([key, value]) => {
+					globalThis[key] = value
+				})
+				${code}
+			})`)
 			let result = fn({ ...inputs })
 			node.setOutput("result", result)
-		} catch {
-			// dont care right now
+			setError(null)
+		} catch (e: unknown) {
+			setError((e as Error).message)
 		}
 	}, [code, inputs, node])
 
 	return (
 		<div className="flex max-w-72 flex-col gap-2">
 			<Suspense>
-				<CodeEditor onChange={onChange} />
+				<CodeEditor initialCode={code} onChange={onChange} />
 			</Suspense>
+			{error ? <div className="text-xs text-red-500">{error}</div> : null}
 		</div>
 	)
 }

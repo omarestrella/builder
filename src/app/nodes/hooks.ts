@@ -20,6 +20,16 @@ export function useNodeInputs<
 	return inputs as Partial<Inputs>
 }
 
+export function useNodeProperty<
+	Node extends BaseNode,
+	Definition extends NonNullable<Node["definition"]["properties"]>,
+	Properties extends z.TypeOf<Definition>,
+	Key extends keyof Properties,
+>(node: Node, key: Key) {
+	let properties = useSnapshot(node.properties)
+	return properties[key as string] as Properties[Key]
+}
+
 export function useNodeName(node: BaseNode) {
 	let meta = useSnapshot(node.meta)
 	return meta.name
