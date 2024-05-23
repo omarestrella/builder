@@ -1,8 +1,8 @@
-import { proxy, subscribe, useSnapshot } from "valtio"
+import { proxy, subscribe } from "valtio"
 import { proxyMap } from "valtio/utils"
 
-import { BaseNode } from "../../nodes/base"
-import { nodeFromType } from "../../nodes/nodes"
+import { BaseNode } from "@/nodes/base"
+import { nodeFromType } from "@/nodes/nodes"
 
 export class NodeManager {
 	nodes = proxyMap<string, BaseNode>()
@@ -155,12 +155,3 @@ export class NodeManager {
 }
 
 export const nodeManager = new NodeManager()
-
-export function useNodes() {
-	return useSnapshot(nodeManager.nodes)
-}
-
-export function useNode(id: string) {
-	let state = useSnapshot(nodeManager.nodes)
-	return state.get(id)
-}

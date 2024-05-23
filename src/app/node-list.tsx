@@ -1,5 +1,5 @@
-import { useDragNode } from "./managers/drag/useDragNode"
-import { ALL_NODES } from "./nodes/nodes"
+import { useDragNode } from "@/managers/drag/useDragNode"
+import { ALL_NODES } from "@/nodes/nodes"
 
 function DragNode({ node }: { node: (typeof ALL_NODES)[number] }) {
 	let dragProps = useDragNode(node.type)

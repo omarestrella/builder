@@ -69,7 +69,7 @@ export default function CodeEditor({
 
 	return (
 		// eslint-disable-next-line tailwindcss/no-custom-classname
-		<div className="nodrag nowheel h-48 w-64 cursor-text overflow-auto [&_.cm-editor]:size-full [&_.cm-editor]:outline-none">
+		<div className="nodrag nowheel size-full cursor-text overflow-auto [&_.cm-editor]:size-full [&_.cm-editor]:outline-none">
 			<div ref={containerRef} className="size-full" />
 		</div>
 	)

@@ -2,10 +2,10 @@ import { ErrorBoundary } from "react-error-boundary"
 import { Handle, NodeProps, Position, useUpdateNodeInternals } from "reactflow"
 import { useSnapshot } from "valtio"
 
-import { Tooltip } from "../../components/tooltip"
-import { BaseNode } from "../base"
-import { useNodeOutput } from "../hooks"
-import { NodeWrapper } from "./node"
+import { Tooltip } from "@/components/tooltip"
+import { BaseNode } from "@/nodes/base"
+import { NodeWrapper } from "@/nodes/components/node"
+import { useNodeOutput } from "@/nodes/hooks"
 
 export function CanvasNode({ data: node, selected }: NodeProps<BaseNode>) {
 	return (

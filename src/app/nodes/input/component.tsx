@@ -1,4 +1,5 @@
-import { useNodeOutput } from "../hooks"
+import { useNodeOutput } from "@/nodes/hooks"
+
 import { InputNode } from "./node"
 
 export function Component({ node }: { node: InputNode }) {

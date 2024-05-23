@@ -34,3 +34,7 @@ export function useNodeName(node: BaseNode) {
 	let meta = useSnapshot(node.meta)
 	return meta.name
 }
+export function useNodeSize(node: BaseNode) {
+	let meta = useSnapshot(node.meta)
+	return meta.size
+}

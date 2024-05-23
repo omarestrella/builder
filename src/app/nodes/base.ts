@@ -50,6 +50,10 @@ export abstract class BaseNode<
 			x: 0,
 			y: 0,
 		},
+		size: {
+			width: 0,
+			height: 0,
+		},
 	})
 
 	dynamic = false
@@ -77,9 +81,6 @@ export abstract class BaseNode<
 		let outputKeys = getSchemaKeys(
 			this.definition.outputs,
 		) as SchemaKey<OutputDef>[]
-		let propertyKeys = getSchemaKeys(
-			this.definition.outputs,
-		) as SchemaKey<PropertiesDef>[]
 
 		inputKeys.forEach((key) => {
 			this.inputData[key] = {
@@ -108,11 +109,10 @@ export abstract class BaseNode<
 					to: value.to,
 				})
 			})
+			Object.entries(nodeData.properties).forEach(([key, value]) => {
+				this.setProperty(key as never, value as never)
+			})
 		}
-
-		propertyKeys.forEach((key) => {
-			this.properties[key] = nodeData?.properties[key as string]
-		})
 
 		Object.entries(this.meta).forEach(([mKey, _value]) => {
 			let key = mKey as never // dont care atm

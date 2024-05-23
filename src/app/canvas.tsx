@@ -15,11 +15,11 @@ import ReactFlow, {
 	useReactFlow,
 } from "reactflow"
 
-import { useThrottle } from "./hooks/use-throttle"
-import { useDropNodeEffect } from "./managers/drag/useDropNodeEffect"
-import { nodeManager } from "./managers/node/manager"
-import { CanvasNode } from "./nodes/components/canvas-node"
-import { nodeFromType } from "./nodes/nodes"
+import { useThrottle } from "@/hooks/use-throttle"
+import { useDropNodeEffect } from "@/managers/drag/useDropNodeEffect"
+import { nodeManager } from "@/managers/node/manager"
+import { CanvasNode } from "@/nodes/components/canvas-node"
+import { nodeFromType } from "@/nodes/nodes"
 
 export function Canvas() {
 	let initializedRef = useRef(false)
@@ -41,6 +41,12 @@ export function Canvas() {
 			}
 			if (change.type === "remove") {
 				nodeManager.removeNode(change.id)
+			}
+			if (change.type === "dimensions") {
+				let node = nodeManager.getNode(change.id)
+				if (!node || !change.dimensions) return
+
+				node.meta.size = change.dimensions
 			}
 		})
 	}, [])

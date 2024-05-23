@@ -1,6 +1,7 @@
 import { z } from "zod"
 
-import { BaseNode } from "../base"
+import { BaseNode } from "@/nodes/base"
+
 import { Component } from "./component"
 
 const inputs = z.object({})
