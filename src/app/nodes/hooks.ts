@@ -20,6 +20,14 @@ export function useNodeInputs<
 	return inputs as Partial<Inputs>
 }
 
+export function useNodeInputData<
+	Node extends BaseNode,
+	InputData extends Node["inputData"],
+>(node: Node) {
+	let inputData = useSnapshot(node.inputData)
+	return inputData as InputData
+}
+
 export function useNodeProperty<
 	Node extends BaseNode,
 	Definition extends NonNullable<Node["definition"]["properties"]>,

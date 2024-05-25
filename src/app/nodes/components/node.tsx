@@ -1,6 +1,3 @@
-import { NodeResizeControl } from "reactflow"
-import { snapshot } from "valtio"
-
 import { EditableText } from "@/components/editable-text"
 import { BaseNode } from "@/nodes/base"
 import { useNodeName } from "@/nodes/hooks"
@@ -20,9 +17,6 @@ export function NodeWrapper({
 
 	// not sure how to handle this right now, will fix later
 	let padding = node.type === "TYPESCRIPT" ? "0" : "4px"
-
-	let meta = snapshot(node.meta)
-	console.log(meta)
 
 	return (
 		<div
@@ -50,7 +44,8 @@ export function NodeWrapper({
 
 			{outputs}
 
-			<NodeResizeControl className="!size-auto !-translate-x-5 !-translate-y-5 !bg-transparent opacity-25">
+			{/* Disabled for now */}
+			{/* <NodeResizeControl className="!size-auto !-translate-x-5 !-translate-y-5 !bg-transparent opacity-25">
 				<svg
 					version="1.1"
 					xmlns="http://www.w3.org/2000/svg"
@@ -63,7 +58,7 @@ export function NodeWrapper({
 					<path fill="#444" d="M12.7 16l3.3-3.3v-1.4l-4.7 4.7z"></path>
 					<path fill="#444" d="M15.7 16l0.3-0.3v-1.4l-1.7 1.7z"></path>
 				</svg>
-			</NodeResizeControl>
+			</NodeResizeControl> */}
 		</div>
 	)
 }

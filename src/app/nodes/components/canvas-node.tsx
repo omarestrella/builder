@@ -1,11 +1,12 @@
+import { LucideTrash2 } from "lucide-react"
 import { ErrorBoundary } from "react-error-boundary"
 import { Handle, NodeProps, Position, useUpdateNodeInternals } from "reactflow"
-import { useSnapshot } from "valtio"
 
 import { Tooltip } from "@/components/tooltip"
+import { nodeManager } from "@/managers/node/manager"
 import { BaseNode } from "@/nodes/base"
 import { NodeWrapper } from "@/nodes/components/node"
-import { useNodeOutput } from "@/nodes/hooks"
+import { useNodeInputData, useNodeOutput } from "@/nodes/hooks"
 
 export function CanvasNode({ data: node, selected }: NodeProps<BaseNode>) {
 	return (
@@ -26,7 +27,7 @@ export function CanvasNode({ data: node, selected }: NodeProps<BaseNode>) {
 function Inputs({ node }: { node: BaseNode }) {
 	let updateNodeInternals = useUpdateNodeInternals()
 
-	let inputData = Object.entries(useSnapshot(node.inputData))
+	let inputData = Object.entries(useNodeInputData(node))
 
 	if (!node.dynamic && inputData.length === 0) {
 		return null
@@ -41,15 +42,13 @@ function Inputs({ node }: { node: BaseNode }) {
 					<div className="flex flex-col gap-2">
 						<div className="relative flex gap-2">
 							{inputData.map(([key, _value]) => (
-								<Handle
+								<InputHandle
 									key={key}
-									type="target"
-									position={Position.Top}
 									id={key}
-									className="!relative !inset-x-auto !top-auto flex !h-5 !w-fit !transform-none items-center !rounded-sm !border-none !bg-black px-1 text-xs text-white"
-								>
-									{key}
-								</Handle>
+									label={key}
+									node={node}
+									dynamic={node.dynamic}
+								/>
 							))}
 						</div>
 					</div>
@@ -73,6 +72,39 @@ function Inputs({ node }: { node: BaseNode }) {
 				) : null}
 			</div>
 		</div>
+	)
+}
+
+function InputHandle({
+	id,
+	node,
+	label,
+	dynamic,
+}: {
+	id: string
+	node: BaseNode
+	label: string
+	dynamic?: boolean
+}) {
+	return (
+		<Handle
+			type="target"
+			position={Position.Top}
+			id={id}
+			className="group !relative !inset-x-auto !top-auto flex !h-5 !w-fit !transform-none items-center !rounded-sm !border-none !bg-black px-1 text-xs text-white"
+		>
+			{label}
+			{dynamic ? (
+				<span
+					className="inline-block w-0 cursor-pointer overflow-hidden transition-all hover:text-red-500 group-hover:ml-1 group-hover:w-3"
+					onClick={() => {
+						nodeManager.deleteInput({ node, key: id })
+					}}
+				>
+					<LucideTrash2 size={12} />
+				</span>
+			) : null}
+		</Handle>
 	)
 }
 

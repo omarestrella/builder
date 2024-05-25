@@ -76,7 +76,6 @@ export class NodeManager {
 				}
 
 				let fromNode = this.getNode(value.fromNodeID)
-				console.log("fromNode", fromNode?.name, fromNode?.outputs)
 
 				let outputKey = value.outputName
 				if (!fromNode || !outputKey) {
@@ -138,6 +137,16 @@ export class NodeManager {
 	removeConnections({ toNodeID, toKey }: { toNodeID: string; toKey: string }) {
 		let toNode = this.getNode(toNodeID)
 		toNode?.removeInputData(toKey)
+		this.save()
+	}
+
+	deleteInput({ node, key }: { node: BaseNode; key: string }) {
+		let inputData = node.inputData[key]
+		if (inputData && inputData.outputName) {
+			let fromNode = this.getNode(inputData.fromNodeID)
+			fromNode?.removeOutputData(inputData.outputName)
+		}
+		node.deleteInputData(key)
 		this.save()
 	}
 

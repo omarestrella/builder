@@ -171,9 +171,21 @@ export abstract class BaseNode<
 		this.inputData[key].outputName = undefined
 	}
 
+	deleteInputData(key: SchemaKey<InputDef>) {
+		if (!this.dynamic) throw new Error("Dynamic inputs not enabled")
+
+		delete this.inputs[key]
+		delete this.inputData[key]
+	}
+
 	getOutputData(name: SchemaKey<OutputDef>): OutputData | undefined {
 		if (!this.outputData) throw new Error("Outputs not initialized")
 		return this.outputData?.[name]
+	}
+
+	removeOutputData(name: SchemaKey<OutputDef>) {
+		if (!this.outputData) throw new Error("Outputs not initialized")
+		delete this.outputData[name]
 	}
 
 	getResult(_inputs: unknown): unknown {
