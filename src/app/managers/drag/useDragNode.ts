@@ -18,6 +18,8 @@ export function useDragNode(type: string) {
 			timerRef.current = setTimeout(() => {
 				setIsDragging(true)
 				dragManager.state.draggingType = type
+
+				document.body.style.cursor = "grabbing"
 			}, 100)
 		},
 		[type],
@@ -38,6 +40,7 @@ export function useDragNode(type: string) {
 				clearTimeout(timerRef.current)
 			}
 			setIsDragging(false)
+			document.body.style.cursor = "auto"
 			dragManager.state.draggingType = null
 		}
 

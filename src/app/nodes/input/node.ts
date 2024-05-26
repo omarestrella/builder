@@ -1,3 +1,4 @@
+import { LucideTextCursorInput } from "lucide-react"
 import { z } from "zod"
 
 import { BaseNode } from "../base"
@@ -18,5 +19,9 @@ export class InputNode extends BaseNode<typeof inputs, typeof outputs> {
 
 	component(props: { node: InputNode }): JSX.Element {
 		return Component(props)
+	}
+
+	static get icon() {
+		return LucideTextCursorInput
 	}
 }

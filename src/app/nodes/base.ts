@@ -64,6 +64,9 @@ export abstract class BaseNode<
 		properties?: Schema
 	}
 	abstract component(props: { node: BaseNode }): JSX.Element
+	static get icon(): React.ExoticComponent | null {
+		return null
+	}
 
 	constructor(id?: string) {
 		this.id = id ?? crypto.randomUUID()

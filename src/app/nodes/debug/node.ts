@@ -1,3 +1,4 @@
+import { LucideBug } from "lucide-react"
 import { z } from "zod"
 
 import { BaseNode } from "../base"
@@ -15,6 +16,10 @@ export class DebugNode extends BaseNode<typeof inputs, typeof outputs> {
 	}
 
 	static type = "DEBUG"
+
+	static get icon() {
+		return LucideBug
+	}
 
 	component(props: { node: DebugNode }): JSX.Element {
 		return Component(props)

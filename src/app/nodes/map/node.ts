@@ -1,3 +1,4 @@
+import { LucideMap } from "lucide-react"
 import { z } from "zod"
 
 import { BaseNode } from "@/nodes/base"
@@ -20,5 +21,9 @@ export class MapNode extends BaseNode<typeof inputs, typeof outputs> {
 
 	component(props: { node: MapNode }): JSX.Element {
 		return Component(props)
+	}
+
+	static get icon() {
+		return LucideMap
 	}
 }

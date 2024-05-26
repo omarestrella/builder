@@ -1,12 +1,11 @@
 import { BaseNode } from "./base"
 import { DebugNode } from "./debug/node"
 import { InputNode } from "./input/node"
-import { MapNode } from "./map/node"
-import { TypeScriptNode } from "./typescript/node"
+import { JavaScriptNode } from "./javascript/node"
 
-export { DebugNode, InputNode, MapNode, TypeScriptNode }
+export { DebugNode, InputNode, JavaScriptNode as TypeScriptNode }
 
-export const ALL_NODES = [InputNode, MapNode, TypeScriptNode, DebugNode]
+export const ALL_NODES = [InputNode, JavaScriptNode, DebugNode]
 
 export * from "./base"
 
