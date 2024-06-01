@@ -1,3 +1,5 @@
+import { HttpRequestNode } from "@/nodes/http/node"
+
 import { BaseNode } from "./base"
 import { DebugNode } from "./debug/node"
 import { InputNode } from "./input/node"
@@ -5,7 +7,7 @@ import { JavaScriptNode } from "./javascript/node"
 
 export { DebugNode, InputNode, JavaScriptNode as TypeScriptNode }
 
-export const ALL_NODES = [InputNode, JavaScriptNode, DebugNode]
+export const ALL_NODES = [InputNode, JavaScriptNode, HttpRequestNode, DebugNode]
 
 export * from "./base"
 

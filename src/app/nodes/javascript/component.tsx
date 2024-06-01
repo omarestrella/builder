@@ -1,17 +1,9 @@
-import {
-	lazy,
-	Suspense,
-	useCallback,
-	useEffect,
-	useMemo,
-	useState,
-} from "react"
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react"
 
+import { CodeEditor } from "@/components/code-editor"
 import { useNodeInputData, useNodeInputs, useNodeProperty } from "@/nodes/hooks"
 
 import { JavaScriptNode } from "./node"
-
-const CodeEditor = lazy(() => import("./code-editor"))
 
 export function Component({ node }: { node: JavaScriptNode }) {
 	let inputs = useNodeInputs(node)
@@ -64,6 +56,9 @@ export function Component({ node }: { node: JavaScriptNode }) {
 					initialCode={code}
 					onChange={onChange}
 					completionData={inputCompletionData}
+					options={{
+						lineNumbers: true,
+					}}
 				/>
 			</Suspense>
 			{error ? <div className="text-xs text-red-500">{error}</div> : null}

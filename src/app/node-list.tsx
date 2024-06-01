@@ -9,10 +9,10 @@ function DragNode({ node }: { node: (typeof ALL_NODES)[number] }) {
 	return (
 		<button
 			key={node.type}
-			className="flex w-24 cursor-grab flex-col items-center gap-2 rounded-md border p-2 transition-colors hover:border-slate-300"
+			className="flex w-full cursor-grab items-center gap-1 rounded-md border p-2 transition-colors hover:border-slate-300"
 			{...dragProps}
 		>
-			{node.icon ? <node.icon /> : null}
+			{node.icon ? <node.icon size={14} /> : null}
 			<span className="text-xs">{name}</span>
 		</button>
 	)
@@ -20,7 +20,7 @@ function DragNode({ node }: { node: (typeof ALL_NODES)[number] }) {
 
 export function NodeList() {
 	return (
-		<div className="flex flex-wrap justify-center gap-2 p-2">
+		<div className="grid grid-cols-2 justify-center gap-2 p-2">
 			{ALL_NODES.map((node) => (
 				<DragNode key={node.type} node={node} />
 			))}

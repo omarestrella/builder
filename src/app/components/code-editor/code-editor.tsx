@@ -53,10 +53,14 @@ const baseTheme = EditorView.theme({
 export default function CodeEditor({
 	initialCode,
 	completionData,
+	options = {},
 	onChange,
 }: {
 	initialCode: string
 	completionData: { label: string; value: unknown }[]
+	options?: {
+		lineNumbers?: boolean
+	}
 	onChange: (code: string) => void
 }) {
 	let [editorView, setEditorView] = useState<EditorView | null>(null)
@@ -101,8 +105,13 @@ export default function CodeEditor({
 			extensions: [
 				// mostly from basic setup
 				[
-					lineNumbers(),
-					highlightActiveLineGutter(),
+					options.lineNumbers
+						? [
+								lineNumbers(),
+								highlightActiveLine(),
+								highlightActiveLineGutter(),
+							]
+						: [],
 					highlightSpecialChars(),
 					history(),
 					foldGutter(),
@@ -123,7 +132,6 @@ export default function CodeEditor({
 					bracketMatching(),
 					closeBrackets(),
 					autocompletion(),
-					highlightActiveLine(),
 					highlightSelectionMatches(),
 					indentOnInput(),
 				],
