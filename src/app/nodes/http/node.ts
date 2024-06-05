@@ -10,6 +10,9 @@ const outputs = z.object({
 })
 const properties = z.object({
 	method: z.string(),
+	url: z.string(),
+	body: z.string(),
+	headers: z.array(z.object({ key: z.string(), value: z.string() })),
 })
 
 export class HttpRequestNode extends BaseNode<

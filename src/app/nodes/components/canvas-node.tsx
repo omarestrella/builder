@@ -5,7 +5,7 @@ import { Handle, NodeProps, Position, useUpdateNodeInternals } from "reactflow"
 import { Tooltip } from "@/components/tooltip"
 import { nodeManager } from "@/managers/node/manager"
 import { BaseNode } from "@/nodes/base"
-import { NodeWrapper } from "@/nodes/components/node"
+import { NodeWrapper } from "@/nodes/components/node-wrapper"
 import { useNodeInputData, useNodeOutput } from "@/nodes/hooks"
 
 export function CanvasNode({ data: node, selected }: NodeProps<BaseNode>) {
@@ -34,7 +34,7 @@ function Inputs({ node }: { node: BaseNode }) {
 	}
 
 	return (
-		<div className="flex flex-col gap-2 border-b p-2">
+		<div className="flex flex-col gap-1">
 			<p className="m-0 text-xs font-bold">Inputs</p>
 
 			<div className="flex gap-2">
@@ -86,10 +86,12 @@ function InputHandle({
 	label: string
 	dynamic?: boolean
 }) {
+	let updateNodeInternals = useUpdateNodeInternals()
+
 	return (
 		<Handle
 			type="target"
-			position={Position.Top}
+			position={Position.Left}
 			id={id}
 			className="group !relative !inset-x-auto !top-auto flex !h-5 !w-fit !transform-none items-center !rounded-sm !border-none !bg-black px-1 text-xs text-white"
 		>
@@ -99,6 +101,7 @@ function InputHandle({
 					className="inline-block w-0 cursor-pointer overflow-hidden transition-all hover:text-red-500 group-hover:ml-1 group-hover:w-3"
 					onClick={() => {
 						nodeManager.deleteInput({ node, key: id })
+						updateNodeInternals(node.id)
 					}}
 				>
 					<LucideTrash2 size={12} />
@@ -112,9 +115,9 @@ function Outputs({ node }: { node: BaseNode }) {
 	let outputData = Object.entries(node.outputData ?? {})
 
 	return outputData.length > 0 ? (
-		<div className="flex flex-col gap-2 p-2">
+		<div className="flex flex-col gap-1">
 			<p className="m-0 text-xs font-bold">Outputs</p>
-			<div className="relative">
+			<div className="relative flex">
 				{outputData.map(([key, _value]) => (
 					<OutputHandle key={key} node={node} outputKey={key} />
 				))}

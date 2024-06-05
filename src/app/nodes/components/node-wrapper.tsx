@@ -19,33 +19,38 @@ export function NodeWrapper({
 	let padding = node.type === "TYPESCRIPT" ? "0" : "4px"
 
 	return (
-		<div
-			className={`flex size-full flex-col rounded-md border bg-white/5 backdrop-blur-sm ${
-				selected ? "border-black/30" : ""
-			}`}
-		>
-			<div className="flex gap-2 border-b p-2 text-sm font-bold">
-				<EditableText
-					value={name}
-					onSubmit={(value) => (node.meta.name = value)}
-				/>
-			</div>
-
-			{inputs}
+		<div className="flex flex-col gap-1">
+			<div className="px-1">{inputs}</div>
 
 			<div
-				className="min-h-0 flex-1 border-b last-of-type:border-none"
-				style={{ padding }}
+				className={`
+      flex size-full flex-col rounded-md border bg-white/25 backdrop-blur-sm
+
+      ${selected ? "border-black/30" : ""}
+    `}
 			>
-				<node.component node={node} />
-			</div>
+				<div className="flex gap-2 border-b p-2 text-sm font-bold">
+					<EditableText
+						value={name}
+						onSubmit={(value) => (node.meta.name = value)}
+					/>
+				</div>
 
-			{/* <div className="text-xs text-gray-500">{node.id}</div> */}
+				<div
+					className={`
+       min-h-0 flex-1 border-b
 
-			{outputs}
+       last-of-type:border-none
+     `}
+					style={{ padding }}
+				>
+					<node.component node={node} />
+				</div>
 
-			{/* Disabled for now */}
-			{/* <NodeResizeControl className="!size-auto !-translate-x-5 !-translate-y-5 !bg-transparent opacity-25">
+				{/* <div className="text-xs text-gray-500">{node.id}</div> */}
+
+				{/* Disabled for now */}
+				{/* <NodeResizeControl className="!size-auto !-translate-x-5 !-translate-y-5 !bg-transparent opacity-25">
 				<svg
 					version="1.1"
 					xmlns="http://www.w3.org/2000/svg"
@@ -59,6 +64,9 @@ export function NodeWrapper({
 					<path fill="#444" d="M15.7 16l0.3-0.3v-1.4l-1.7 1.7z"></path>
 				</svg>
 			</NodeResizeControl> */}
+			</div>
+
+			<div className="px-1">{outputs}</div>
 		</div>
 	)
 }

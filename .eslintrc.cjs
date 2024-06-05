@@ -17,6 +17,7 @@ module.exports = {
 		"import",
 		"unused-imports",
 		"prefer-let",
+		"eslint-plugin-readable-tailwind",
 	],
 	rules: {
 		"prefer-const": "off",
@@ -56,5 +57,7 @@ module.exports = {
 			"warn",
 			{ allowConstantExport: true },
 		],
+		"readable-tailwind/multiline": ["warn", { printWidth: 100 }],
+		"readable-tailwind/no-unnecessary-whitespace": "warn",
 	},
 }
