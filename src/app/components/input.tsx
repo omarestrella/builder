@@ -1,4 +1,13 @@
-export function Input({ className, ...props }: React.ComponentProps<"input">) {
+import { useState } from "react"
+
+export function Input({
+	className,
+	value,
+	onChange,
+	...props
+}: React.ComponentProps<"input">) {
+	let [internalValue, setInternalValue] = useState(value)
+
 	return (
 		<input
 			className={`
@@ -8,6 +17,11 @@ export function Input({ className, ...props }: React.ComponentProps<"input">) {
 
      ${className}
    `}
+			value={internalValue}
+			onChange={(e) => {
+				setInternalValue(e.currentTarget.value)
+				onChange?.(e)
+			}}
 			{...props}
 		/>
 	)

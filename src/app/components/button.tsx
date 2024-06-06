@@ -16,6 +16,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
       focus:ring-1 focus:ring-blue-200
 
+      active:ring-0
+
       ${className}
     `}
 				tabIndex={0}

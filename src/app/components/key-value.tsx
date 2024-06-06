@@ -30,8 +30,9 @@ export function KeyValue({ value, onChange, onDelete }: KeyValueProps) {
 							}
 						/>
 						<Button
-							onClick={() => {
+							onClick={(e) => {
 								onDelete(index)
+								e.currentTarget.blur()
 							}}
 							className={`
          border-none !px-1

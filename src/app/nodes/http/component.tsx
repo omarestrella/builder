@@ -4,7 +4,7 @@ import { Button } from "@/components/button"
 import { Select, SelectGroup, SelectItem } from "@/components/dropdown"
 import { Input } from "@/components/input"
 import { KeyValue } from "@/components/key-value"
-import { useNodeProperty } from "@/nodes/hooks"
+import { useNodeInputs, useNodeProperty } from "@/nodes/hooks"
 
 import { HttpRequestNode } from "./node"
 
@@ -12,6 +12,7 @@ export function Component({ node }: { node: HttpRequestNode }) {
 	let method = useNodeProperty(node, "method")
 	let url = useNodeProperty(node, "url")
 	let headers = useNodeProperty(node, "headers")
+	let inputs = useNodeInputs(node)
 
 	return (
 		<div className="flex size-full min-h-52 w-96 flex-col gap-2 p-1">
@@ -33,6 +34,7 @@ export function Component({ node }: { node: HttpRequestNode }) {
 				</div>
 
 				<Input
+					key="url"
 					className="flex-1"
 					value={url ?? ""}
 					onChange={(e) => node.setProperty("url", e.currentTarget.value)}
@@ -43,12 +45,13 @@ export function Component({ node }: { node: HttpRequestNode }) {
 				<div className="flex h-[22px] items-center justify-between">
 					<label className="text-xs font-medium">Headers</label>
 					<Button
-						onClick={() =>
+						onClick={(e) => {
 							node.setProperty("headers", [
 								...(headers ?? []),
 								{ key: "", value: "" },
 							])
-						}
+							e.currentTarget.blur()
+						}}
 						className={`
         flex !size-auto gap-1 border-0 !text-xs
 
