@@ -1,6 +1,8 @@
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { CodeEditor } from "@/components/code-editor"
+import { useDebounce } from "@/hooks/use-debounce"
+import { vmManager } from "@/managers/vm/manager"
 import { useNodeInputData, useNodeInputs, useNodeProperty } from "@/nodes/hooks"
 
 import { JavaScriptNode } from "./node"
@@ -11,6 +13,7 @@ export function Component({ node }: { node: JavaScriptNode }) {
 	let code = useNodeProperty(node, "code")
 
 	let [error, setError] = useState<string | null>(null)
+	let initialized = useRef(false)
 
 	let onChange = useCallback(
 		(code: string) => {
@@ -28,39 +31,55 @@ export function Component({ node }: { node: JavaScriptNode }) {
 		})
 	}, [inputs, inputData])
 
-	useEffect(() => {
+	let runCode = useCallback(() => {
 		try {
-			// this is so bad, but i dont care right now
-			let fn = eval(`((inputs) => {
-				Object.entries(inputs).forEach(([key, value]) => {
-					globalThis[key] = value
+			vmManager.awaitReady().then(() => {
+				Object.entries(inputData).forEach(([key]) => {
+					vmManager.registerVMGlobal(key, inputs[key])
 				})
-				${code}
-			})`)
-			let data = Object.fromEntries(
-				Object.keys(inputData).map((key) => [key, inputs[key]]),
-			)
+				let result = vmManager.eval(`(() => {
+					${code}
+				})()`)
 
-			let result = fn(data)
-			node.setOutput("result", result)
-			setError(null)
+				if (result instanceof Promise) {
+					result.then((value) => {
+						node.setOutput("result", value)
+						setError(null)
+					})
+				} else {
+					node.setOutput("result", result)
+					setError(null)
+				}
+			})
 		} catch (e: unknown) {
 			setError((e as Error).message)
 		}
 	}, [code, inputs, inputData, node])
 
+	let debouncedRunCode = useDebounce(runCode, 500)
+
+	useEffect(() => {
+		if (initialized.current) {
+			return
+		}
+		initialized.current = true
+		vmManager.init()
+	}, [])
+
+	useEffect(() => {
+		debouncedRunCode()
+	}, [code, inputs, inputData, debouncedRunCode, node])
+
 	return (
 		<div className="flex size-full h-52 w-80 flex-col gap-2">
-			<Suspense>
-				<CodeEditor
-					initialCode={code}
-					onChange={onChange}
-					completionData={inputCompletionData}
-					options={{
-						lineNumbers: true,
-					}}
-				/>
-			</Suspense>
+			<CodeEditor
+				initialCode={code}
+				onChange={onChange}
+				completionData={inputCompletionData}
+				options={{
+					lineNumbers: true,
+				}}
+			/>
 			{error ? <div className="text-xs text-red-500">{error}</div> : null}
 		</div>
 	)

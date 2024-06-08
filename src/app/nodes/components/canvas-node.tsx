@@ -93,12 +93,21 @@ function InputHandle({
 			type="target"
 			position={Position.Left}
 			id={id}
-			className="group !relative !inset-x-auto !top-auto flex !h-5 !w-fit !transform-none items-center !rounded-sm !border-none !bg-black px-1 text-xs text-white"
+			className={`
+     group !relative !inset-x-auto !top-auto flex !h-5 !w-fit !transform-none items-center
+     !rounded-sm !border-none !bg-black px-1 text-xs text-white
+   `}
 		>
 			{label}
 			{dynamic ? (
 				<span
-					className="inline-block w-0 cursor-pointer overflow-hidden transition-all hover:text-red-500 group-hover:ml-1 group-hover:w-3"
+					className={`
+       inline-block w-0 cursor-pointer overflow-hidden transition-all
+
+       hover:text-red-500
+
+       group-hover:ml-1 group-hover:w-3
+     `}
 					onClick={() => {
 						nodeManager.deleteInput({ node, key: id })
 						updateNodeInternals(node.id)
@@ -139,9 +148,12 @@ function OutputHandle({
 		<Tooltip label={output} side="bottom">
 			<Handle
 				type="source"
-				position={Position.Right}
+				position={Position.Bottom}
 				id={outputKey}
-				className="!relative !inset-x-auto !top-auto !h-5 !w-fit !transform-none !rounded-sm px-1 text-xs text-white"
+				className={`
+      !relative !inset-x-auto !top-auto !h-5 !w-fit !transform-none !rounded-sm px-1 text-xs
+      text-white
+    `}
 			>
 				{outputKey}
 			</Handle>

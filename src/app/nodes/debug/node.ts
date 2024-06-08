@@ -5,7 +5,7 @@ import { BaseNode } from "../base"
 import { Component } from "./component"
 
 const inputs = z.object({
-	value: z.string(),
+	value: z.unknown(),
 })
 const outputs = z.object({})
 

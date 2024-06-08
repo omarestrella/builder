@@ -17,6 +17,9 @@ importers:
       '@codemirror/lang-javascript':
         specifier: ^6.2.2
         version: 6.2.2
+      '@codemirror/lang-json':
+        specifier: ^6.0.1
+        version: 6.0.1
       '@codemirror/language':
         specifier: ^6.10.1
         version: 6.10.1
@@ -32,12 +35,27 @@ importers:
       '@codemirror/view':
         specifier: ^6.26.3
         version: 6.26.3
+      '@jitl/quickjs-wasmfile-debug-asyncify':
+        specifier: ^0.29.1
+        version: 0.29.1
+      '@jitl/quickjs-wasmfile-debug-sync':
+        specifier: ^0.29.1
+        version: 0.29.1
+      '@jitl/quickjs-wasmfile-release-asyncify':
+        specifier: ^0.29.1
+        version: 0.29.1
+      '@jitl/quickjs-wasmfile-release-sync':
+        specifier: ^0.29.1
+        version: 0.29.1
       '@radix-ui/react-select':
         specifier: ^2.0.0
         version: 2.0.0(@types/react-dom@18.3.0)(@types/react@18.3.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@radix-ui/react-tooltip':
         specifier: ^1.0.7
         version: 1.0.7(@types/react-dom@18.3.0)(@types/react@18.3.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@tectonica/vm':
+        specifier: ^0.0.3
+        version: 0.0.3
       codemirror:
         specifier: ^6.0.1
         version: 6.0.1(@lezer/common@1.2.1)
@@ -56,6 +74,12 @@ importers:
       lucide-react:
         specifier: ^0.378.0
         version: 0.378.0(react@18.3.1)
+      quickjs-emscripten:
+        specifier: ^0.29.1
+        version: 0.29.1
+      quickjs-emscripten-core:
+        specifier: ^0.29.1
+        version: 0.29.1
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -78,6 +102,9 @@ importers:
         specifier: ^3.23.4
         version: 3.23.8
     devDependencies:
+      '@jitl/quickjs-ffi-types':
+        specifier: ^0.29.1
+        version: 0.29.1
       '@types/leaflet':
         specifier: ^1.9.12
         version: 1.9.12
@@ -285,6 +312,9 @@ packages:
   '@codemirror/lang-javascript@6.2.2':
     resolution: {integrity: sha512-VGQfY+FCc285AhWuwjYxQyUQcYurWlxdKYT4bqwr3Twnd5wP5WSeu52t4tvvuWmljT4EmgEgZCqSieokhtY8hg==}
 
+  '@codemirror/lang-json@6.0.1':
+    resolution: {integrity: sha512-+T1flHdgpqDDlJZ2Lkil/rLiRy684WMLc74xUnjJH48GQdfJo/pudlTRreZmKwzP8/tGdKf83wlbAdOCzlJOGQ==}
+
   '@codemirror/language@6.10.1':
     resolution: {integrity: sha512-5GrXzrhq6k+gL5fjkAwt90nYDmjlzTIJV8THnxNFtNKWotMIlzzN+CpqxqwXOECnUdOndmSeWntVrVcv5axWRQ==}
 
@@ -486,6 +516,21 @@ packages:
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
     engines: {node: '>=12'}
 
+  '@jitl/quickjs-ffi-types@0.29.1':
+    resolution: {integrity: sha512-dVt//PvFmwNJIwfyfPx7vR6cg7mLnAq6/THbhIeZ3NqXb66qXQATnW2gNqAnOcTh1D/f6HyrHFwRf3GdKUN3nw==}
+
+  '@jitl/quickjs-wasmfile-debug-asyncify@0.29.1':
+    resolution: {integrity: sha512-jhxRDq+9ZWT8ddRt6JLcjLLF168EvFrOceiaoy+GuYYXJkWVrWk5p2Ray2GHzh+DL7byszRKEUAKqA9B86Rd9g==}
+
+  '@jitl/quickjs-wasmfile-debug-sync@0.29.1':
+    resolution: {integrity: sha512-qn6cxqg2fvobiJtQ/xHVSZH55djraIQ7g+9XGyJjf+ofsn1taMG8T5TIR2iZL7TMSdCRZkGiJeNOp9UaFCTN2w==}
+
+  '@jitl/quickjs-wasmfile-release-asyncify@0.29.1':
+    resolution: {integrity: sha512-1PD+TEw5raGk5s7G1N89gaT81J5A1N6PT79ixbm70gaU0xdUJyAUJoiLiS3YwLjcbpiiM0f7Vnf85M3Li914aQ==}
+
+  '@jitl/quickjs-wasmfile-release-sync@0.29.1':
+    resolution: {integrity: sha512-iVeMmZXIDg3gD0elfj5FscwrqGLmcglvpvWDIzs5tmzJ4AKiDAHXunGwd8X4gifeW6S+f0j681M8+tZuUIqnJA==}
+
   '@jridgewell/gen-mapping@0.3.5':
     resolution: {integrity: sha512-IzL8ZoEDIBRWEzlCcRhOaCupYyN5gdIK+Q6fbFdPDg6HqX6jpkItn7DFIpW9LQzXG6Df9sA7+OKnq0qlz/GaQg==}
     engines: {node: '>=6.0.0'}
@@ -512,6 +557,9 @@ packages:
 
   '@lezer/javascript@1.4.16':
     resolution: {integrity: sha512-84UXR3N7s11MPQHWgMnjb9571fr19MmXnr5zTv2XX0gHXXUvW3uPJ8GCjKrfTXmSdfktjRK0ayKklw+A13rk4g==}
+
+  '@lezer/json@1.0.2':
+    resolution: {integrity: sha512-xHT2P4S5eeCYECyKNPhr4cbEL9tc8w83SPwRC373o9uEdrvGKTZoJVAGxpOsZckMlEh9W23Pc72ew918RWQOBQ==}
 
   '@lezer/lr@1.4.0':
     resolution: {integrity: sha512-Wst46p51km8gH0ZUmeNrtpRYmdlRHUpN1DQd3GFAyKANi8WVz8c2jHYTf1CVScFaCjQw1iO3ZZdqGDxQPRErTg==}
@@ -931,6 +979,9 @@ packages:
     resolution: {integrity: sha512-TGGO7v7qOq4CYmSBVEYpI1Y5xDuCEnbVC5Vth8mOsW0gDSzxNrVERPc790IGHsrT2dQSimgMr9Ub3Y1Jci5/8w==}
     cpu: [x64]
     os: [win32]
+
+  '@tectonica/vm@0.0.3':
+    resolution: {integrity: sha512-y2ZdxShB/vgVOpTTvTlQghRwFqIe8oVUUrkkSF4qES2A7HwytamXyFWa3QgjgEMyEf9pVAzYathLC7Mt5+Hh+w==}
 
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -2267,6 +2318,13 @@ packages:
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
+  quickjs-emscripten-core@0.29.1:
+    resolution: {integrity: sha512-urFIWrPgKfzLFe/IwE8px3Oznb7UGsXpMjHLe15PTPbWongXmy6KAyxRpYFW8K/dDELilg0H/voysHbWHKj6uA==}
+
+  quickjs-emscripten@0.29.1:
+    resolution: {integrity: sha512-9WX9cbbPW2/Wg/vedfAV6lL1kJB68xvE7kuILM24dkcIB/NCrIscZ94OdTGi9/77jYEJuajkzoQnHVn2BLzdaQ==}
+    engines: {node: '>=16.0.0'}
+
   react-dom@18.3.1:
     resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
     peerDependencies:
@@ -2898,6 +2956,11 @@ snapshots:
       '@lezer/common': 1.2.1
       '@lezer/javascript': 1.4.16
 
+  '@codemirror/lang-json@6.0.1':
+    dependencies:
+      '@codemirror/language': 6.10.1
+      '@lezer/json': 1.0.2
+
   '@codemirror/language@6.10.1':
     dependencies:
       '@codemirror/state': 6.4.1
@@ -3057,6 +3120,24 @@ snapshots:
       wrap-ansi: 8.1.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
 
+  '@jitl/quickjs-ffi-types@0.29.1': {}
+
+  '@jitl/quickjs-wasmfile-debug-asyncify@0.29.1':
+    dependencies:
+      '@jitl/quickjs-ffi-types': 0.29.1
+
+  '@jitl/quickjs-wasmfile-debug-sync@0.29.1':
+    dependencies:
+      '@jitl/quickjs-ffi-types': 0.29.1
+
+  '@jitl/quickjs-wasmfile-release-asyncify@0.29.1':
+    dependencies:
+      '@jitl/quickjs-ffi-types': 0.29.1
+
+  '@jitl/quickjs-wasmfile-release-sync@0.29.1':
+    dependencies:
+      '@jitl/quickjs-ffi-types': 0.29.1
+
   '@jridgewell/gen-mapping@0.3.5':
     dependencies:
       '@jridgewell/set-array': 1.2.1
@@ -3081,6 +3162,12 @@ snapshots:
       '@lezer/common': 1.2.1
 
   '@lezer/javascript@1.4.16':
+    dependencies:
+      '@lezer/common': 1.2.1
+      '@lezer/highlight': 1.2.0
+      '@lezer/lr': 1.4.0
+
+  '@lezer/json@1.0.2':
     dependencies:
       '@lezer/common': 1.2.1
       '@lezer/highlight': 1.2.0
@@ -3511,6 +3598,10 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.17.2':
     optional: true
+
+  '@tectonica/vm@0.0.3':
+    dependencies:
+      quickjs-emscripten: 0.29.1
 
   '@types/babel__core@7.20.5':
     dependencies:
@@ -5009,6 +5100,18 @@ snapshots:
   punycode@2.3.1: {}
 
   queue-microtask@1.2.3: {}
+
+  quickjs-emscripten-core@0.29.1:
+    dependencies:
+      '@jitl/quickjs-ffi-types': 0.29.1
+
+  quickjs-emscripten@0.29.1:
+    dependencies:
+      '@jitl/quickjs-wasmfile-debug-asyncify': 0.29.1
+      '@jitl/quickjs-wasmfile-debug-sync': 0.29.1
+      '@jitl/quickjs-wasmfile-release-asyncify': 0.29.1
+      '@jitl/quickjs-wasmfile-release-sync': 0.29.1
+      quickjs-emscripten-core: 0.29.1
 
   react-dom@18.3.1(react@18.3.1):
     dependencies:

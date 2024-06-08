@@ -12,8 +12,6 @@ export function interpolate(
 ): string {
 	let parsed: ParseResult = parse(str)
 
-	console.log(parsed)
-
 	return parsed
 		.map((part) => {
 			if (typeof part === "string") {

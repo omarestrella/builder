@@ -7,6 +7,7 @@ import { Component } from "./component"
 const inputs = z.record(z.string(), z.unknown())
 const outputs = z.object({
 	response: z.unknown(),
+	error: z.unknown(),
 })
 const properties = z.object({
 	method: z.string(),

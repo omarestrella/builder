@@ -1,18 +1,80 @@
 import { LucidePlus } from "lucide-react"
+import { useCallback, useEffect } from "react"
 
 import { Button } from "@/components/button"
+import { CodeEditor } from "@/components/code-editor"
 import { Select, SelectGroup, SelectItem } from "@/components/dropdown"
 import { Input } from "@/components/input"
 import { KeyValue } from "@/components/key-value"
+import { useDebounce } from "@/hooks/use-debounce"
 import { useNodeInputs, useNodeProperty } from "@/nodes/hooks"
+import { interpolate } from "@/parsing/interpolate"
 
 import { HttpRequestNode } from "./node"
+
+let abortController: AbortController | undefined
 
 export function Component({ node }: { node: HttpRequestNode }) {
 	let method = useNodeProperty(node, "method")
 	let url = useNodeProperty(node, "url")
 	let headers = useNodeProperty(node, "headers")
+	let body = useNodeProperty(node, "body")
 	let inputs = useNodeInputs(node)
+
+	let onBodyChange = useCallback(
+		(code: string) => {
+			node.setProperty("body", code)
+		},
+		[node],
+	)
+
+	let performRequest = useCallback(() => {
+		if (abortController) {
+			abortController.abort()
+		}
+
+		abortController = new AbortController()
+		let requestUrl = interpolate(url, inputs)
+
+		let headersObj = Object.fromEntries(
+			(headers ?? []).map((header) => [header.key, header.value]),
+		)
+		let interpolatedHeaders = interpolate(JSON.stringify(headersObj), inputs)
+
+		fetch(requestUrl, {
+			method,
+			body: method !== "GET" ? interpolate(body, inputs) : undefined,
+			headers: JSON.parse(interpolatedHeaders),
+			signal: abortController.signal,
+		})
+			.then(async (response) => {
+				if (response.ok) {
+					let data: unknown = ""
+					if (
+						response.headers.get("Content-Type")?.includes("application/json")
+					) {
+						data = await response.json()
+					} else {
+						data = await response.text()
+					}
+					node.setOutput("response", data)
+					node.setOutput("error", undefined)
+				} else {
+					node.setOutput("response", undefined)
+					node.setOutput("error", response.statusText)
+				}
+			})
+			.catch((err) => {
+				node.setOutput("response", undefined)
+				node.setOutput("error", err.toString())
+			})
+	}, [body, headers, inputs, method, url, node])
+
+	let debouncedPerformRequest = useDebounce(performRequest, 500)
+
+	useEffect(() => {
+		debouncedPerformRequest()
+	}, [body, headers, inputs, method, url, debouncedPerformRequest])
 
 	return (
 		<div className="flex size-full min-h-52 w-96 flex-col gap-2 p-1">
@@ -74,6 +136,19 @@ export function Component({ node }: { node: HttpRequestNode }) {
 						newHeaders.splice(index, 1)
 
 						node.setProperty("headers", newHeaders)
+					}}
+				/>
+			</div>
+
+			<div className="flex min-h-16 flex-col gap-1">
+				<label className="text-xs font-medium">Body</label>
+				<CodeEditor
+					initialCode={body}
+					language="json"
+					completionData={[]}
+					onChange={onBodyChange}
+					options={{
+						lineNumbers: true,
 					}}
 				/>
 			</div>

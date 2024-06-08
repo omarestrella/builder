@@ -14,6 +14,7 @@ import {
 	indentWithTab,
 } from "@codemirror/commands"
 import { javascript } from "@codemirror/lang-javascript"
+import { json } from "@codemirror/lang-json"
 import {
 	bracketMatching,
 	defaultHighlightStyle,
@@ -39,9 +40,10 @@ import { useCallback, useEffect, useRef, useState } from "react"
 
 let onChangeCompartment = new Compartment()
 let themeCompartment = new Compartment()
-let javascriptCompartment = new Compartment()
+let languageCompartment = new Compartment()
 
 let javascriptLanguage = javascript()
+let jsonLanguage = json()
 
 const baseTheme = EditorView.theme({
 	".cm-content": {
@@ -53,11 +55,13 @@ const baseTheme = EditorView.theme({
 export default function CodeEditor({
 	initialCode,
 	completionData,
+	language = "javascript",
 	options = {},
 	onChange,
 }: {
 	initialCode: string
 	completionData: { label: string; value: unknown }[]
+	language?: "javascript" | "json"
 	options?: {
 		lineNumbers?: boolean
 	}
@@ -99,7 +103,6 @@ export default function CodeEditor({
 	useEffect(() => {
 		if (!containerRef.current) return
 
-		// write code attach codemirror editor to containerRef, using react
 		let startState = EditorState.create({
 			doc: initialCode,
 			extensions: [
@@ -143,7 +146,9 @@ export default function CodeEditor({
 						}
 					}),
 				]),
-				javascriptCompartment.of([javascriptLanguage]),
+				languageCompartment.of([
+					language === "javascript" ? javascriptLanguage : jsonLanguage,
+				]),
 				autocompletion(),
 				tooltips({
 					parent: document.body,
@@ -180,19 +185,36 @@ export default function CodeEditor({
 	}, [editorView, onChange])
 
 	useEffect(() => {
+		if (language !== "javascript") return
 		let completions = javascriptLanguage.language.data.of({
 			autocomplete: completionSource,
 		})
 		editorView?.dispatch({
 			effects: [
-				javascriptCompartment.reconfigure([javascriptLanguage, completions]),
+				languageCompartment.reconfigure([javascriptLanguage, completions]),
 			],
 		})
-	}, [editorView, completionSource])
+	}, [language, editorView, completionSource])
+
+	useEffect(() => {
+		editorView?.dispatch({
+			effects: [
+				languageCompartment.reconfigure([
+					language === "javascript" ? javascriptLanguage : jsonLanguage,
+				]),
+			],
+		})
+	}, [editorView, language])
 
 	return (
-		// eslint-disable-next-line tailwindcss/no-custom-classname
-		<div className="nodrag nowheel size-full cursor-text overflow-auto [&_.cm-editor]:size-full [&_.cm-editor]:outline-none">
+		<div
+			// eslint-disable-next-line tailwindcss/no-custom-classname
+			className={`
+     nodrag nowheel size-full cursor-text overflow-auto
+
+     [&_.cm-editor]:size-full [&_.cm-editor]:outline-none
+   `}
+		>
 			<div ref={containerRef} className="relative size-full" />
 		</div>
 	)
