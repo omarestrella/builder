@@ -42,12 +42,6 @@ export function Canvas() {
 			if (change.type === "remove") {
 				nodeManager.removeNode(change.id)
 			}
-			if (change.type === "dimensions") {
-				let node = nodeManager.getNode(change.id)
-				if (!node || !change.dimensions) return
-
-				node.meta.size = change.dimensions
-			}
 		})
 	}, [])
 

@@ -29,6 +29,10 @@ export function Component({ node }: { node: HttpRequestNode }) {
 	)
 
 	let performRequest = useCallback(() => {
+		if (!url) {
+			return
+		}
+
 		if (abortController) {
 			abortController.abort()
 		}
@@ -77,9 +81,10 @@ export function Component({ node }: { node: HttpRequestNode }) {
 	}, [body, headers, inputs, method, url, debouncedPerformRequest])
 
 	return (
-		<div className="flex size-full min-h-52 w-96 flex-col gap-2 p-1">
-			<div className="flex gap-1">
-				<div className="w-[112px]">
+		// eslint-disable-next-line tailwindcss/no-custom-classname
+		<div className="nowheel flex size-full flex-col gap-2 p-1">
+			<div className="grid w-full grid-cols-[112px,_1fr] gap-1">
+				<div className="w-full">
 					<Select
 						placeholder="Method"
 						value={method}
@@ -140,7 +145,13 @@ export function Component({ node }: { node: HttpRequestNode }) {
 				/>
 			</div>
 
-			<div className="flex min-h-16 flex-col gap-1">
+			<div
+				className={`
+      grid min-h-16 w-full flex-1 grid-rows-[min-content,_1fr] flex-col gap-1
+
+      [&_.cm-editor]:border
+    `}
+			>
 				<label className="text-xs font-medium">Body</label>
 				<CodeEditor
 					initialCode={body}

@@ -21,6 +21,11 @@ export class DebugNode extends BaseNode<typeof inputs, typeof outputs> {
 		return LucideBug
 	}
 
+	constructor() {
+		super()
+		this.meta.size = { width: 240, height: 128 }
+	}
+
 	component(props: { node: DebugNode }): JSX.Element {
 		return Component(props)
 	}

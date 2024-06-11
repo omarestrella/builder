@@ -210,12 +210,12 @@ export default function CodeEditor({
 		<div
 			// eslint-disable-next-line tailwindcss/no-custom-classname
 			className={`
-     nodrag nowheel size-full cursor-text overflow-auto
+     nodrag nowheel grid size-full max-h-64 cursor-text overflow-auto
 
      [&_.cm-editor]:size-full [&_.cm-editor]:outline-none
    `}
 		>
-			<div ref={containerRef} className="relative size-full" />
+			<div ref={containerRef} className="relative min-h-0 min-w-0" />
 		</div>
 	)
 }

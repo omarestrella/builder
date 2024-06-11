@@ -34,12 +34,16 @@ export function Component({ node }: { node: JavaScriptNode }) {
 	let runCode = useCallback(() => {
 		try {
 			vmManager.awaitReady().then(() => {
+				let context: Record<string, unknown> = {}
 				Object.entries(inputData).forEach(([key]) => {
-					vmManager.registerVMGlobal(key, inputs[key])
+					context[key] = inputs[key]
 				})
-				let result = vmManager.eval(`(() => {
+				let result = vmManager.scopedEval(
+					`(() => {
 					${code}
-				})()`)
+				})()`,
+					context,
+				)
 
 				if (result instanceof Promise) {
 					result.then((value) => {
@@ -71,7 +75,7 @@ export function Component({ node }: { node: JavaScriptNode }) {
 	}, [code, inputs, inputData, debouncedRunCode, node])
 
 	return (
-		<div className="flex size-full h-52 w-80 flex-col gap-2">
+		<div className="flex size-full flex-col gap-2">
 			<CodeEditor
 				initialCode={code}
 				onChange={onChange}

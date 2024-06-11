@@ -27,6 +27,11 @@ export class JavaScriptNode extends BaseNode<
 
 	static type = "JAVASCRIPT"
 
+	constructor() {
+		super()
+		this.meta.size = { width: 320, height: 240 }
+	}
+
 	component(props: { node: JavaScriptNode }): JSX.Element {
 		return Component(props)
 	}

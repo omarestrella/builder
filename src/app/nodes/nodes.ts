@@ -5,7 +5,7 @@ import { DebugNode } from "./debug/node"
 import { InputNode } from "./input/node"
 import { JavaScriptNode } from "./javascript/node"
 
-export { DebugNode, InputNode, JavaScriptNode as TypeScriptNode }
+export { DebugNode, HttpRequestNode, InputNode, JavaScriptNode }
 
 export const ALL_NODES = [InputNode, JavaScriptNode, HttpRequestNode, DebugNode]
 

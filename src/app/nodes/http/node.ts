@@ -31,6 +31,11 @@ export class HttpRequestNode extends BaseNode<
 
 	static type = "HTTP"
 
+	constructor() {
+		super()
+		this.meta.size = { width: 400, height: 280 }
+	}
+
 	component(props: { node: HttpRequestNode }): JSX.Element {
 		return Component(props)
 	}
