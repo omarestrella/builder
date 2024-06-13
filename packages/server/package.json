@@ -1,0 +1,11 @@
+{
+	"name": "server",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "deno serve --allow-read --allow-env --allow-net --node-modules-dir --watch src/main.ts"
+	},
+	"dependencies": {},
+	"devDependencies": {}
+}

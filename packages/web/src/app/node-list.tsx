@@ -9,7 +9,11 @@ function DragNode({ node }: { node: (typeof ALL_NODES)[number] }) {
 	return (
 		<button
 			key={node.type}
-			className="flex w-full cursor-grab items-center gap-1 rounded-md border p-2 transition-colors hover:border-slate-300"
+			className={`
+     flex w-full cursor-grab items-center gap-1 rounded-md border p-2 transition-colors
+
+     hover:border-slate-300
+   `}
 			{...dragProps}
 		>
 			{node.icon ? <node.icon size={14} /> : null}

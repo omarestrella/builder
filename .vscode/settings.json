@@ -1,6 +1,5 @@
 {
-    "deno.enablePaths": [
-        "./packages/server"
-    ],
-    "deno.enable": true
+	"deno.enable": true,
+	"deno.enablePaths": ["./packages/server"],
+	"deno.config": "./packages/server/deno.json"
 }

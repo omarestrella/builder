@@ -1,0 +1,9 @@
+{
+	"imports": {
+		"@hono/hono": "jsr:@hono/hono@^4.4.5",
+		"@libsql/client": "npm:@libsql/client",
+		"drizzle-orm": "npm:drizzle-orm",
+		"drizzle-orm/libsql": "npm:drizzle-orm/libsql",
+		"loro-crdt": "npm:loro-crdt"
+	}
+}

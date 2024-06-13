@@ -1,0 +1,9 @@
+{
+	"name": "valtio-loro",
+	"version": "1.0.0",
+	"type": "module",
+	"dependencies": {
+		"loro-crdt": "0.16.4-alpha.0",
+		"valtio": "1.13.2"
+	}
+}
