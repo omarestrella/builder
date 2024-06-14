@@ -1,8 +1,12 @@
-import { Loro, LoroList, LoroMap } from "loro-crdt"
+import equal from "fast-deep-equal"
+import { Loro, LoroMap, LoroMovableList } from "loro-crdt"
 import { getVersion, type proxy, subscribe } from "valtio"
 
 const isObject = (x: unknown): x is Record<string, unknown> =>
-	typeof x === "object" && x !== null && getVersion(x) !== undefined
+	typeof x === "object" &&
+	x !== null &&
+	getVersion(x) !== undefined &&
+	!Array.isArray(x)
 
 const isArray = (x: unknown): x is unknown[] =>
 	Array.isArray(x) && getVersion(x) !== undefined
@@ -11,25 +15,40 @@ const isPrimitiveValue = (v: unknown): v is number | boolean | string =>
 	v != null &&
 	(typeof v === "number" || typeof v === "boolean" || typeof v === "string")
 
-function getNestedDocumentValue<T extends object>(
-	path: string[],
-	proxyObj: T,
-	doc: Loro,
-) {
-	let currentValue: LoroMap | LoroList = doc.getMap("root")
-	if (path.length === 0) {
+function getNestedDocumentValue(path: string[], doc: Loro, obj: object) {
+	let currentValue = isArray(obj)
+		? doc.getMovableList("root")
+		: doc.getMap("root")
+	if (
+		currentValue == null ||
+		isPrimitiveValue(currentValue) ||
+		path.length === 0
+	) {
 		return currentValue
 	}
+
 	for (let i = 0; i < path.length; i++) {
 		let key = path[i]
 
 		if (currentValue instanceof LoroMap) {
-			currentValue = currentValue.get(key) as LoroMap | LoroList
-		} else if (currentValue instanceof LoroList) {
-			currentValue = currentValue.get(Number(key)) as LoroMap | LoroList
+			currentValue = currentValue.get(key) as LoroMap | LoroMovableList
+		} else if (currentValue instanceof LoroMovableList) {
+			currentValue = currentValue.get(Number(key)) as LoroMap | LoroMovableList
 		} else {
 			return currentValue // primitive, or undefined
 		}
+	}
+	return currentValue
+}
+
+function getNestedObjectValue<T extends object>(path: string[], obj: T) {
+	let currentValue: unknown = obj
+	for (let i = 0; i < path.length; i++) {
+		let key = path[i]
+		if (currentValue == null) {
+			return undefined
+		}
+		currentValue = currentValue[key]
 	}
 	return currentValue
 }
@@ -49,7 +68,7 @@ function toDocumentValue(data: unknown) {
 		})
 		return map
 	} else if (isArray(data)) {
-		let list = new LoroList()
+		let list = new LoroMovableList()
 		data.forEach((item, idx) => {
 			if (isPrimitiveValue(item)) {
 				list.push(item)
@@ -81,7 +100,7 @@ function initializeDocument<T>(proxyObj: T, doc: Loro) {
 		})
 	}
 	if (isArray(proxyObj)) {
-		let tree = doc.getList("root")
+		let tree = doc.getMovableList("root")
 		proxyObj.forEach((item, idx) => {
 			if (isPrimitiveValue(item)) {
 				tree.push(item)
@@ -93,6 +112,8 @@ function initializeDocument<T>(proxyObj: T, doc: Loro) {
 			}
 		})
 	}
+
+	doc.commit(Origin.Initialize)
 }
 
 export function bind<T extends object>(
@@ -111,25 +132,87 @@ export function bind<T extends object>(
 				case "set": {
 					let parentPath = path.slice(0, -1) as string[]
 					let key = path.at(-1) as string
-					let parentDocumentValue = getNestedDocumentValue(parentPath, obj, doc)
+					let parentDocumentValue = getNestedDocumentValue(parentPath, doc, obj)
 
 					if (parentDocumentValue instanceof LoroMap) {
-						parentDocumentValue.set(key, value)
-					} else if (parentDocumentValue instanceof LoroList) {
-						// no list ops yet
-						throw new Error("No list ops yet")
+						let currentDocumentValue = parentDocumentValue.get(key)
+						if (!equal(currentDocumentValue, value)) {
+							parentDocumentValue.set(key, value)
+						}
+					} else if (parentDocumentValue instanceof LoroMovableList) {
+						let idx = Number(key)
+						if (!Number.isFinite(idx)) return
+
+						let currentDocumentValue = parentDocumentValue.get(idx)
+						if (!currentDocumentValue) {
+							parentDocumentValue.insert(idx, value)
+						} else if (!equal(currentDocumentValue, value)) {
+							parentDocumentValue.set(idx, value)
+						}
+					}
+
+					break
+				}
+				case "delete": {
+					let parentPath = path.slice(0, -1) as string[]
+					let key = path.at(-1) as string
+					let parentDocumentValue = getNestedDocumentValue(parentPath, doc, obj)
+
+					if (parentDocumentValue instanceof LoroMap) {
+						parentDocumentValue.delete(key)
+					} else if (parentDocumentValue instanceof LoroMovableList) {
+						throw new Error("No delete list ops yet")
 					}
 
 					break
 				}
 				default: {
-					console.log("unknown operation", operation)
+					throw new Error("Unhandled operation type: " + operation)
 				}
 			}
 		})
+		doc.commit(Origin.Sync)
+	})
+
+	let subID = doc.subscribe((event) => {
+		if (event.origin === "undo" || event.origin === "redo") {
+			event.events.forEach((event) => {
+				let path = event.path.slice(1).map((s) => s.toString()) // remove "root"
+				let data = getNestedObjectValue(path, obj)
+				if (isObject(data) && event.diff.type === "map") {
+					Object.entries(event.diff.updated).forEach(([key, value]) => {
+						data[key] = value
+					})
+				} else if (isArray(data) && event.diff.type === "list") {
+					throw new Error("No list ops yet")
+				}
+			})
+		} else if (!event.origin) {
+			// this is probably the same as undo/redo?
+			event.events.forEach((event) => {
+				let path = event.path.slice(1).map((s) => s.toString()) // remove "root"
+				let data = getNestedObjectValue(path, obj)
+				if (isObject(data) && event.diff.type === "map") {
+					Object.entries(event.diff.updated).forEach(([key, value]) => {
+						data[key] = value
+					})
+				} else if (isArray(data) && event.diff.type === "list") {
+					throw new Error("No list ops yet")
+				}
+			})
+		}
 	})
 
 	return () => {
 		unsubscribe()
+		doc.unsubscribe(subID)
 	}
 }
+
+export const Origin = {
+	Initialize: "initialize",
+	Sync: "sync",
+	User: "user",
+	System: "system",
+} as const
+export type Origin = (typeof Origin)[keyof typeof Origin]
