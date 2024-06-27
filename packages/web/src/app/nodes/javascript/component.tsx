@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
-import { CodeEditor } from "@/components/code-editor"
-import { useDebounce } from "@/hooks/use-debounce"
-import { vmManager } from "@/managers/vm/manager"
-import { useNodeInputData, useNodeInputs, useNodeProperty } from "@/nodes/hooks"
-
+import { CodeEditor } from "../../components/code-editor"
+import { useDebounce } from "../../hooks/use-debounce"
+import { vmManager } from "../../managers/vm/manager"
+import { useNodeInputData, useNodeInputs, useNodeProperty } from "../hooks"
 import { JavaScriptNode } from "./node"
 
 export function Component({ node }: { node: JavaScriptNode }) {

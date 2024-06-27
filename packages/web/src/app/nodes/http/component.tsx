@@ -1,15 +1,14 @@
 import { LucidePlus } from "lucide-react"
 import { useCallback, useEffect } from "react"
 
-import { Button } from "@/components/button"
-import { CodeEditor } from "@/components/code-editor"
-import { Select, SelectGroup, SelectItem } from "@/components/dropdown"
-import { Input } from "@/components/input"
-import { KeyValue } from "@/components/key-value"
-import { useDebounce } from "@/hooks/use-debounce"
-import { useNodeInputs, useNodeProperty } from "@/nodes/hooks"
-import { interpolate } from "@/parsing/interpolate"
-
+import { Button } from "../../components/button"
+import { CodeEditor } from "../../components/code-editor"
+import { Select, SelectGroup, SelectItem } from "../../components/dropdown"
+import { Input } from "../../components/input"
+import { KeyValue } from "../../components/key-value"
+import { useDebounce } from "../../hooks/use-debounce"
+import { interpolate } from "../../parsing/interpolate"
+import { useNodeInputs, useNodeProperty } from "../hooks"
 import { HttpRequestNode } from "./node"
 
 let abortController: AbortController | undefined

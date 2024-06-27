@@ -5,7 +5,7 @@ import { dragManager } from "./manager"
 export function useDragNode(type: string) {
 	let [isDragging, setIsDragging] = useState(false)
 
-	let timerRef = useRef<number | null>(null)
+	let timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
 	let onPointerDown = useCallback(
 		(e: React.PointerEvent) => {

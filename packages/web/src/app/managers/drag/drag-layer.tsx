@@ -1,8 +1,8 @@
 import { useMemo } from "react"
 
-import { useDragState } from "@/managers/drag/manager"
-import { NodeWrapper } from "@/nodes/components/node-wrapper"
-import { ALL_NODES } from "@/nodes/nodes"
+import { NodeWrapper } from "../../nodes/components/node-wrapper"
+import { ALL_NODES } from "../../nodes/nodes"
+import { useDragState } from "./manager"
 
 export function DragLayer() {
 	let { draggingType, position } = useDragState()

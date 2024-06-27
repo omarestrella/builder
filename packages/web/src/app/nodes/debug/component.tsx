@@ -1,7 +1,6 @@
 import { Suspense } from "react"
 
-import { useNodeInputs } from "@/nodes/hooks"
-
+import { useNodeInputs } from "../hooks"
 import { DebugNode } from "./node"
 
 function ValueRenderer({ node }: { node: DebugNode }) {

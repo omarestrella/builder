@@ -1,6 +1,5 @@
-import { Input } from "@/components/input"
-import { useNodeOutput } from "@/nodes/hooks"
-
+import { Input } from "../../components/input"
+import { useNodeOutput } from "../hooks"
 import { InputNode } from "./node"
 
 export function Component({ node }: { node: InputNode }) {

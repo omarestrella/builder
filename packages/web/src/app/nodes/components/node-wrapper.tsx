@@ -1,6 +1,6 @@
-import { EditableText } from "@/components/editable-text"
-import { BaseNode } from "@/nodes/base"
-import { useNodeName, useNodeSize } from "@/nodes/hooks"
+import { EditableText } from "../../components/editable-text"
+import { BaseNode } from "../base"
+import { useNodeName, useNodeSize } from "../hooks"
 
 export function NodeWrapper({
 	node,
@@ -38,7 +38,7 @@ export function NodeWrapper({
 				</div>
 
 				<div
-					className={`min-h-0 flex-1 border-b border-none @container`}
+					className={`min-h-0 flex-1 border-b border-none`}
 					data-node-container
 					style={{
 						padding,

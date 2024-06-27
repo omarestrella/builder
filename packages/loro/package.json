@@ -1,5 +1,5 @@
 {
-	"name": "valtio-loro",
+	"name": "@builder/loro",
 	"version": "1.0.0",
 	"type": "module",
 	"dependencies": {

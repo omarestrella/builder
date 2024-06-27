@@ -48,7 +48,7 @@ function getNestedObjectValue<T extends object>(path: string[], obj: T) {
 		if (currentValue == null) {
 			return undefined
 		}
-		currentValue = currentValue[key]
+		currentValue = (currentValue as never)[key] as unknown
 	}
 	return currentValue
 }
@@ -137,7 +137,26 @@ export function bind<T extends object>(
 					if (parentDocumentValue instanceof LoroMap) {
 						let currentDocumentValue = parentDocumentValue.get(key)
 						if (!equal(currentDocumentValue, value)) {
-							parentDocumentValue.set(key, value)
+							// TODO: figure out a clean way to handle node class instances,
+							// so proxy references are handled in-place
+							let safeValue = value
+							if (
+								value &&
+								typeof value === "object" &&
+								value.constructor.toString().includes("class")
+							) {
+								safeValue = Object.entries(value as never).reduce(
+									(acc, [key, value]) => {
+										acc[key] = isPrimitiveValue(value)
+											? value
+											: toDocumentValue(value)
+										return acc
+									},
+									{} as Record<string, unknown>,
+								)
+							}
+
+							parentDocumentValue.set(key, safeValue)
 						}
 					} else if (parentDocumentValue instanceof LoroMovableList) {
 						let idx = Number(key)

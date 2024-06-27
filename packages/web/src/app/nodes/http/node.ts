@@ -31,8 +31,8 @@ export class HttpRequestNode extends BaseNode<
 
 	static type = "HTTP"
 
-	constructor() {
-		super()
+	constructor(id?: string) {
+		super(id)
 		this.meta.size = { width: 400, height: 280 }
 	}
 

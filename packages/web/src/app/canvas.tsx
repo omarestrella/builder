@@ -15,13 +15,16 @@ import ReactFlow, {
 	useReactFlow,
 } from "reactflow"
 
-import { useThrottle } from "@/hooks/use-throttle"
-import { useDropNodeEffect } from "@/managers/drag/useDropNodeEffect"
-import { nodeManager } from "@/managers/node/manager"
-import { CanvasNode } from "@/nodes/components/canvas-node"
-import { nodeFromType } from "@/nodes/nodes"
+import { useThrottle } from "./hooks/use-throttle"
+import { useDropNodeEffect } from "./managers/drag/useDropNodeEffect"
+import { useLoroManager } from "./managers/loro/hooks"
+import { nodeManager } from "./managers/node/manager"
+import { CanvasNode } from "./nodes/components/canvas-node"
+import { nodeFromType } from "./nodes/nodes"
 
 export function Canvas() {
+	let loroManager = useLoroManager()
+
 	let initializedRef = useRef(false)
 
 	let [canvasNodes, setCanvasNodes] = useState<Node[]>([])
@@ -121,6 +124,7 @@ export function Canvas() {
 		if (initializedRef.current) return
 
 		let nodes = nodeManager.initialize()
+		loroManager.initializeDocument(nodeManager.nodeMap)
 
 		setCanvasNodes(
 			nodes.map((node) => ({

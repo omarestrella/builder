@@ -1,7 +1,7 @@
 import { LucideTrash } from "lucide-react"
 
-import { Button } from "@/components/button"
-import { Input } from "@/components/input"
+import { Button } from "./button"
+import { Input } from "./input"
 
 type KeyValueProps = {
 	value?: { key: string; value: string }[]

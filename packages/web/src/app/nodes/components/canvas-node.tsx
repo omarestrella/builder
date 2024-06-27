@@ -2,11 +2,11 @@ import { LucideTrash2 } from "lucide-react"
 import { ErrorBoundary } from "react-error-boundary"
 import { Handle, NodeProps, Position, useUpdateNodeInternals } from "reactflow"
 
-import { Tooltip } from "@/components/tooltip"
-import { nodeManager } from "@/managers/node/manager"
-import { BaseNode } from "@/nodes/base"
-import { NodeWrapper } from "@/nodes/components/node-wrapper"
-import { useNodeInputData, useNodeOutput } from "@/nodes/hooks"
+import { Tooltip } from "../../components/tooltip"
+import { nodeManager } from "../../managers/node/manager"
+import { BaseNode } from "../base"
+import { useNodeInputData, useNodeOutput } from "../hooks"
+import { NodeWrapper } from "./node-wrapper"
 
 export function CanvasNode({ data: node, selected }: NodeProps<BaseNode>) {
 	return (

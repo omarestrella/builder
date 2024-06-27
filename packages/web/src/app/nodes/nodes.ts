@@ -1,7 +1,6 @@
-import { HttpRequestNode } from "@/nodes/http/node"
-
 import { BaseNode } from "./base"
 import { DebugNode } from "./debug/node"
+import { HttpRequestNode } from "./http/node"
 import { InputNode } from "./input/node"
 import { JavaScriptNode } from "./javascript/node"
 

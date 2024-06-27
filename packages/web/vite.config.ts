@@ -9,7 +9,7 @@ export default defineConfig({
 	plugins: [react(), wasm(), topLevelAwait()],
 	resolve: {
 		alias: {
-			"@": path.resolve(__dirname, "./src/app"),
+			"@builder": path.resolve(__dirname, "../"),
 		},
 	},
 	build: {

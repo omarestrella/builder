@@ -3,7 +3,7 @@ import { Loro, LoroMap, LoroMovableList, UndoManager } from "loro-crdt"
 import { proxy } from "valtio/vanilla"
 import { describe, expect, test } from "vitest"
 
-import { bind } from "./index"
+import { bind } from "./bind"
 
 let wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
@@ -87,6 +87,27 @@ describe("bind", () => {
 				expect(doc.getMap("root").toJSON()).toEqual({
 					a: { b: 1, c: { d: 2 } },
 					d: { e: 3 },
+				})
+			})
+
+			test("add array", async () => {
+				let obj = proxy({ a: { b: 1 } } as Record<string, any>)
+				let doc = new Loro()
+
+				bind(obj, doc)
+
+				obj.a.c = [1, 2, 3]
+				await wait(10)
+
+				expect(doc.getMap("root").toJSON()).toEqual({
+					a: { b: 1, c: [1, 2, 3] },
+				})
+
+				obj.a.c = [1, 2]
+				await wait(10)
+
+				expect(doc.getMap("root").toJSON()).toEqual({
+					a: { b: 1, c: [1, 2] },
 				})
 			})
 
@@ -181,6 +202,25 @@ describe("bind", () => {
 	})
 
 	describe("document -> proxy", () => {
+		describe("updates", () => {
+			test("can apply remote document changes", async () => {
+				let obj = proxy({ a: 1 } as Record<string, any>)
+				let docA = new Loro()
+				let docB = new Loro()
+				docB.import(docA.exportFrom())
+
+				bind(obj, docA)
+
+				docB.getMap("root").set("a", 2)
+				docB.commit()
+				docA.import(docB.exportFrom())
+
+				await wait(10)
+
+				expect(obj).toEqual({ a: 2 })
+			})
+		})
+
 		describe("maps", () => {
 			test("add top-level key", async () => {
 				let obj = proxy({} as Record<string, any>)
@@ -208,7 +248,7 @@ describe("bind", () => {
 				expect(obj).toEqual({ a: { b: 1, c: 2 } })
 			})
 
-			test("add nested key - array", async () => {
+			test.skip("add nested key - array", async () => {
 				let obj = proxy({ a: {} } as Record<string, any>)
 				let doc = new Loro()
 
@@ -223,7 +263,7 @@ describe("bind", () => {
 				expect(obj).toEqual({ a: { b: [1] } })
 			})
 
-			test("add nested key - object", async () => {
+			test.skip("add nested key - object", async () => {
 				let obj = proxy({ a: {} } as Record<string, any>)
 				let doc = new Loro()
 

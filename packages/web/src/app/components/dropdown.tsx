@@ -2,7 +2,7 @@ import * as BaseSelect from "@radix-ui/react-select"
 import { LucideCheck, LucideChevronDown, LucideChevronUp } from "lucide-react"
 import React from "react"
 
-import { Button } from "@/components/button"
+import { Button } from "./button"
 
 export function Select({
 	value,

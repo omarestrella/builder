@@ -1,11 +1,11 @@
 import { proxy, subscribe } from "valtio"
-import { proxyMap } from "valtio/utils"
 
-import { BaseNode } from "@/nodes/base"
-import { nodeFromType } from "@/nodes/nodes"
+import { BaseNode } from "../../nodes/base"
+import { nodeFromType } from "../../nodes/nodes"
 
 export class NodeManager {
-	nodes = proxyMap<string, BaseNode>()
+	nodeMap = proxy<Record<string, BaseNode>>({})
+	nodeMapJSON = proxy<Record<string, ReturnType<BaseNode["toJSON"]>>>({})
 
 	dataSubscriptions = new Map<string, () => void>()
 	inputSubscriptions = new Map<string, () => void>()
@@ -22,7 +22,8 @@ export class NodeManager {
 			>
 			let nodes = Object.entries(parsedNodes).map(([id, nodeData]) => {
 				let node = nodeFromType(nodeData.type, id, nodeData)
-				this.nodes.set(node.id, node)
+				this.nodeMap[node.id] = node
+				this.nodeMapJSON[node.id] = node.toJSON()
 
 				return node
 			})
@@ -38,7 +39,8 @@ export class NodeManager {
 	}
 
 	addNode(node: BaseNode) {
-		this.nodes.set(node.id, node)
+		this.nodeMap[node.id] = node
+		this.nodeMapJSON[node.id] = node.toJSON()
 
 		this.setupListeners(node)
 	}
@@ -46,11 +48,12 @@ export class NodeManager {
 	getNode(id?: string) {
 		if (!id) return undefined
 
-		return this.nodes.get(id)
+		return this.nodeMap[id]
 	}
 
 	removeNode(id: string) {
-		this.nodes.delete(id)
+		delete this.nodeMap[id]
+		delete this.nodeMapJSON[id]
 		this.outputSubscriptions.get(id)?.forEach((s) => s())
 		this.outputSubscriptions.delete(id)
 		this.dataSubscriptions.get(id)?.()
@@ -152,7 +155,7 @@ export class NodeManager {
 
 	toJSON() {
 		let nodes: Record<string, Record<string, unknown>> = {}
-		this.nodes.forEach((node, id) => {
+		Object.entries(this.nodeMap).forEach(([id, node]) => {
 			nodes[id] = node.toJSON()
 		})
 		return nodes
