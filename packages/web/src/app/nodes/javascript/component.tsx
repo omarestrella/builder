@@ -76,7 +76,7 @@ export function Component({ node }: { node: JavaScriptNode }) {
 	return (
 		<div className="flex size-full flex-col gap-2">
 			<CodeEditor
-				initialCode={code}
+				code={code ?? ""}
 				onChange={onChange}
 				completionData={inputCompletionData}
 				options={{

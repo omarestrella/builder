@@ -21,8 +21,8 @@ export class DebugNode extends BaseNode<typeof inputs, typeof outputs> {
 		return LucideBug
 	}
 
-	constructor() {
-		super()
+	constructor(id?: string) {
+		super(id)
 		this.meta.size = { width: 240, height: 128 }
 	}
 

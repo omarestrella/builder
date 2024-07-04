@@ -17,8 +17,8 @@ export class InputNode extends BaseNode<typeof inputs, typeof outputs> {
 
 	static type = "INPUT"
 
-	constructor() {
-		super()
+	constructor(id?: string) {
+		super(id)
 		this.meta.size = { width: 240, height: 46 }
 	}
 

@@ -53,13 +53,13 @@ const baseTheme = EditorView.theme({
 })
 
 export default function CodeEditor({
-	initialCode,
+	code,
 	completionData,
 	language = "javascript",
 	options = {},
 	onChange,
 }: {
-	initialCode: string
+	code: string
 	completionData: { label: string; value: unknown }[]
 	language?: "javascript" | "json"
 	options?: {
@@ -104,7 +104,7 @@ export default function CodeEditor({
 		if (!containerRef.current) return
 
 		let startState = EditorState.create({
-			doc: initialCode,
+			doc: code,
 			extensions: [
 				// mostly from basic setup
 				[
@@ -169,6 +169,19 @@ export default function CodeEditor({
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
+
+	useEffect(() => {
+		let currentCode = editorView?.state.doc.toString()
+		if (currentCode && currentCode !== code) {
+			editorView?.dispatch({
+				changes: {
+					from: 0,
+					to: editorView.state.doc.length,
+					insert: code,
+				},
+			})
+		}
+	}, [code, editorView])
 
 	useEffect(() => {
 		editorView?.dispatch({

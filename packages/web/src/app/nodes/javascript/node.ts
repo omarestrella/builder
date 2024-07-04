@@ -27,8 +27,8 @@ export class JavaScriptNode extends BaseNode<
 
 	static type = "JAVASCRIPT"
 
-	constructor() {
-		super()
+	constructor(id?: string) {
+		super(id)
 		this.meta.size = { width: 320, height: 240 }
 	}
 

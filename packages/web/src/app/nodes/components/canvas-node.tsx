@@ -143,6 +143,9 @@ function OutputHandle({
 	outputKey: string
 }) {
 	let output = useNodeOutput(node, outputKey)
+	if (typeof output === "object" && output !== null) {
+		output = JSON.stringify(output)
+	}
 
 	return (
 		<Tooltip label={output} side="bottom">

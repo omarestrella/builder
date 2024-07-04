@@ -9,5 +9,12 @@ export class LoroManager {
 
 	initializeDocument(nodes: ReturnType<typeof proxy>) {
 		this.cleanup = bind(nodes, this.loro)
+		// @ts-expect-error - expose Loro for debugging
+		window.loro = this.loro
+	}
+
+	destroy() {
+		this.cleanup?.()
+		this.loro = new Loro()
 	}
 }

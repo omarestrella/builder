@@ -1,6 +1,6 @@
 import "reactflow/dist/style.css"
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import ReactFlow, {
 	addEdge,
 	applyEdgeChanges,
@@ -22,6 +22,8 @@ import { nodeManager } from "./managers/node/manager"
 import { CanvasNode } from "./nodes/components/canvas-node"
 import { nodeFromType } from "./nodes/nodes"
 
+let nodeTypes = { node: CanvasNode }
+
 export function Canvas() {
 	let loroManager = useLoroManager()
 
@@ -29,8 +31,6 @@ export function Canvas() {
 
 	let [canvasNodes, setCanvasNodes] = useState<Node[]>([])
 	let [canvasEdges, setCanvasEdges] = useState<Edge[]>([])
-
-	let nodeTypes = useMemo(() => ({ node: CanvasNode }), [])
 
 	let reactFlow = useReactFlow()
 
@@ -87,8 +87,6 @@ export function Canvas() {
 				fromKey: connection.sourceHandle,
 				toKey: connection.targetHandle,
 			})
-
-			console.log("onConnect", connection)
 
 			setCanvasEdges((eds) => addEdge(connection, eds))
 		},
@@ -171,7 +169,7 @@ export function Canvas() {
 		})
 
 		initializedRef.current = true
-	}, [])
+	}, [loroManager])
 
 	return (
 		<div className="size-full">

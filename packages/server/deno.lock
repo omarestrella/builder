@@ -2,7 +2,14 @@
   "version": "3",
   "packages": {
     "specifiers": {
+      "jsr:@denorg/scrypt@^4.4.4": "jsr:@denorg/scrypt@4.4.4",
       "jsr:@hono/hono@^4.4.5": "jsr:@hono/hono@4.4.5",
+      "jsr:@std/assert@0.222.1": "jsr:@std/assert@0.222.1",
+      "jsr:@std/assert@^0.222.1": "jsr:@std/assert@0.222.1",
+      "jsr:@std/crypto@0.222.1": "jsr:@std/crypto@0.222.1",
+      "jsr:@std/encoding@0.222.1": "jsr:@std/encoding@0.222.1",
+      "jsr:@std/encoding@^0.222.1": "jsr:@std/encoding@0.222.1",
+      "jsr:@std/fmt@^0.222.1": "jsr:@std/fmt@0.222.1",
       "npm:@libsql/client": "npm:@libsql/client@0.6.2",
       "npm:@types/node": "npm:@types/node@18.16.19",
       "npm:drizzle-kit@^0.22.7": "npm:drizzle-kit@0.22.7_esbuild@0.19.12",
@@ -10,8 +17,35 @@
       "npm:loro-crdt": "npm:loro-crdt@0.16.4-alpha.0"
     },
     "jsr": {
+      "@denorg/scrypt@4.4.4": {
+        "integrity": "81e82ad4627e91f4c98c1789b3382667f366a61702642ad5d3a8dddf7b444905",
+        "dependencies": [
+          "jsr:@std/assert@0.222.1",
+          "jsr:@std/crypto@0.222.1",
+          "jsr:@std/encoding@0.222.1"
+        ]
+      },
       "@hono/hono@4.4.5": {
         "integrity": "8b0f005253251e7e3dcd5c1d54cd236b24db9634e5483815fad67aca2fb2eaf2"
+      },
+      "@std/assert@0.222.1": {
+        "integrity": "691637161ee584a9919d1f9950ddd1272feb8e0a19e83aa5b7563cedaf73d74c",
+        "dependencies": [
+          "jsr:@std/fmt@^0.222.1"
+        ]
+      },
+      "@std/crypto@0.222.1": {
+        "integrity": "d5b9e6c704fadbcc384cd42c0b603ad4aea710ece0ff26426602681b64fd237c",
+        "dependencies": [
+          "jsr:@std/assert@^0.222.1",
+          "jsr:@std/encoding@^0.222.1"
+        ]
+      },
+      "@std/encoding@0.222.1": {
+        "integrity": "fb6c1d38722feebc8d4a5efa3eb2039ecec0d50d053186240484d0c4a4ce1006"
+      },
+      "@std/fmt@0.222.1": {
+        "integrity": "ec3382f9b0261c1ab1a5c804aa355d816515fa984cdd827ed32edfb187c0a722"
       }
     },
     "npm": {
@@ -476,9 +510,11 @@
   },
   "workspace": {
     "dependencies": [
+      "jsr:@denorg/scrypt@^4.4.4",
       "jsr:@hono/hono@^4.4.5",
       "npm:@libsql/client",
       "npm:drizzle-orm",
+      "npm:jose@^5.6.3",
       "npm:loro-crdt"
     ]
   }

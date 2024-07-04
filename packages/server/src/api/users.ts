@@ -1,4 +1,5 @@
 import { Hono } from "@hono/hono"
+
 import { db, sql } from "../database/db.ts"
 
 export const users = new Hono()

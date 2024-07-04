@@ -1,8 +1,7 @@
 import { LucideMap } from "lucide-react"
 import { z } from "zod"
 
-import { BaseNode } from "@/nodes/base"
-
+import { BaseNode } from "../base"
 import { Component } from "./component"
 
 const inputs = z.object({})

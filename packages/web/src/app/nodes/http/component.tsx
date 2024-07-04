@@ -153,7 +153,7 @@ export function Component({ node }: { node: HttpRequestNode }) {
 			>
 				<label className="text-xs font-medium">Body</label>
 				<CodeEditor
-					initialCode={body}
+					code={body}
 					language="json"
 					completionData={[]}
 					onChange={onBodyChange}

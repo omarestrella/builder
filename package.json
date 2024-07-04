@@ -4,7 +4,7 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "pnpm --stream -r dev",
+		"dev": "pnpm --stream --recursive --parallel dev",
 		"db:push": "pnpm drizzle-kit push",
 		"db:generate": "pnpm drizzle-kit generate",
 		"db:migrate": "pnpm drizzle-kit migrate",

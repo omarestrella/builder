@@ -1,4 +1,4 @@
-import { createContext, useMemo } from "react"
+import { createContext, useEffect, useMemo } from "react"
 
 import { LoroManager } from "./manager"
 
@@ -12,6 +12,12 @@ export function LoroManagerProvider({
 	let manager = useMemo(() => {
 		return new LoroManager()
 	}, [])
+
+	useEffect(() => {
+		return () => {
+			manager.destroy()
+		}
+	}, [manager])
 
 	return (
 		<LoroManagerContext.Provider value={manager}>
