@@ -72,12 +72,12 @@ describe("bind", () => {
 
 				bind(obj, doc)
 
-				obj.a.c = { d: 2 }
+				obj.a.c = { type: 2 }
 
 				await wait(10)
 
 				expect(doc.getMap("root").toJSON()).toEqual({
-					a: { b: 1, c: { d: 2 } },
+					a: { b: 1, c: { type: 2 } },
 				})
 
 				obj.d = { e: 3 }
@@ -85,8 +85,43 @@ describe("bind", () => {
 				await wait(10)
 
 				expect(doc.getMap("root").toJSON()).toEqual({
-					a: { b: 1, c: { d: 2 } },
+					a: { b: 1, c: { type: 2 } },
 					d: { e: 3 },
+				})
+			})
+
+			test("add deep object", async () => {
+				let obj = proxy({ a: { b: 1 } } as Record<string, any>)
+				let doc = new Loro()
+
+				bind(obj, doc)
+
+				obj.c = { d: { e: 2 } }
+
+				await wait(10)
+
+				expect(doc.getMap("root").toJSON()).toEqual({
+					a: { b: 1 },
+					c: { d: { e: 2 } },
+				})
+			})
+
+			test("add proxied object", async () => {
+				let obj = proxy({ a: { b: 1 } } as Record<string, any>)
+				let doc = new Loro()
+
+				bind(obj, doc)
+
+				let nested = {
+					c: proxy({ d: 2 } as Record<string, any>),
+				}
+				obj.nested = nested
+
+				await wait(10)
+
+				expect(doc.getMap("root").toJSON()).toEqual({
+					a: { b: 1 },
+					nested: { c: { d: 2 } },
 				})
 			})
 
@@ -206,10 +241,11 @@ describe("bind", () => {
 			test("can apply remote document changes", async () => {
 				let obj = proxy({ a: 1 } as Record<string, any>)
 				let docA = new Loro()
-				let docB = new Loro()
-				docB.import(docA.exportFrom())
 
 				bind(obj, docA)
+
+				let docB = new Loro()
+				docB.import(docA.exportFrom())
 
 				docB.getMap("root").set("a", 2)
 				docB.commit()

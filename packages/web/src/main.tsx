@@ -3,19 +3,22 @@ import "./css/index.css"
 import React from "react"
 import ReactDOM from "react-dom/client"
 import { ReactFlowProvider } from "reactflow"
+import { SWRConfig } from "swr"
 
 import App from "./app/app.tsx"
-
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
-
-if (!PUBLISHABLE_KEY) {
-	throw new Error("Missing Clerk Publishable Key")
-}
+import { fetcher } from "./app/data/swr.ts"
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
 	<React.StrictMode>
-		<ReactFlowProvider>
-			<App />
-		</ReactFlowProvider>
+		<SWRConfig
+			value={{
+				fetcher: fetcher,
+				revalidateOnFocus: false,
+			}}
+		>
+			<ReactFlowProvider>
+				<App />
+			</ReactFlowProvider>
+		</SWRConfig>
 	</React.StrictMode>,
 )

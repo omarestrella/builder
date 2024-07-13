@@ -4,26 +4,70 @@ import { BaseNode } from "../../nodes/base"
 import { nodeFromType } from "../../nodes/nodes"
 
 export class NodeManager {
+	// the classes get stripped out here, so we need to maintain a clean map as well
 	nodeMap = proxy<Record<string, BaseNode>>({})
-	nodeMapJSON = proxy<Record<string, ReturnType<BaseNode["toJSON"]>>>({})
+	nodes = new Map<string, BaseNode>()
 
 	dataSubscriptions = new Map<string, () => void>()
 	inputSubscriptions = new Map<string, () => void>()
 	outputSubscriptions = new Map<string, (() => void)[]>()
 	proxyNodes = new Map<string, ReturnType<typeof proxy>>()
 
-	initialize() {
-		let storedNodes = localStorage.getItem("nodes")
-		if (!storedNodes) return []
+	projectID = ""
+
+	constructor() {
+		subscribe(this.nodeMap, (ops) => {
+			if (this.projectID === "new") {
+				return
+			}
+
+			ops.forEach(([operation, path, value, _prevValue]) => {
+				switch (operation) {
+					case "set": {
+						let nodeID = path[0] as string
+						let nodeData = value as ReturnType<BaseNode["toJSON"]>
+
+						if (!nodeData) {
+							return
+						}
+
+						// setting the initial node value
+						if (nodeID && path.length === 1) {
+							if (this.nodes.get(nodeID) || !nodeData.type) {
+								return
+							}
+
+							let node = nodeFromType(nodeData.type, nodeID, nodeData)
+
+							this.setupListeners(node)
+
+							this.nodeMap[node.id] = node
+							this.nodes.set(node.id, node)
+						}
+						break
+					}
+					case "delete": {
+						// delete this.nodeMapJSON[path]
+						break
+					}
+				}
+			})
+		})
+	}
+
+	initialize(projectID: string, nodeData: Record<string, unknown> | undefined) {
+		if (!nodeData) return []
+
+		this.projectID = projectID
 		try {
-			let parsedNodes = JSON.parse(storedNodes) as Record<
+			let parsedNodes = nodeData as Record<
 				string,
 				ReturnType<BaseNode["toJSON"]>
 			>
 			let nodes = Object.entries(parsedNodes).map(([id, nodeData]) => {
 				let node = nodeFromType(nodeData.type, id, nodeData)
 				this.nodeMap[node.id] = node
-				this.nodeMapJSON[node.id] = node.toJSON()
+				this.nodes.set(node.id, node)
 
 				return node
 			})
@@ -40,7 +84,7 @@ export class NodeManager {
 
 	addNode(node: BaseNode) {
 		this.nodeMap[node.id] = node
-		this.nodeMapJSON[node.id] = node.toJSON()
+		this.nodes.set(node.id, node)
 
 		this.setupListeners(node)
 	}
@@ -53,7 +97,7 @@ export class NodeManager {
 
 	removeNode(id: string) {
 		delete this.nodeMap[id]
-		delete this.nodeMapJSON[id]
+		this.nodes.delete(id)
 		this.outputSubscriptions.get(id)?.forEach((s) => s())
 		this.outputSubscriptions.delete(id)
 		this.dataSubscriptions.get(id)?.()
@@ -162,7 +206,9 @@ export class NodeManager {
 	}
 
 	save() {
-		localStorage.setItem("nodes", JSON.stringify(this.toJSON()))
+		if (this.projectID === "new") {
+			localStorage.setItem("nodes", JSON.stringify(this.toJSON()))
+		}
 	}
 }
 

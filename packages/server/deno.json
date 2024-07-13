@@ -1,13 +1,17 @@
 {
 	"imports": {
+		"@builder/messages/": "../messages/",
 		"@denorg/scrypt": "jsr:@denorg/scrypt@^4.4.4",
-		"@hono/hono": "jsr:@hono/hono@^4.4.5",
 		"@libsql/client": "npm:@libsql/client",
+		"@std/fmt": "jsr:@std/fmt@^0.225.5",
 		"djwt": "https://deno.land/x/djwt@v3.0.2",
 		"drizzle-orm": "npm:drizzle-orm",
 		"drizzle-orm/libsql": "npm:drizzle-orm/libsql",
+		"hono": "npm:hono@^4.4.11",
 		"jose": "npm:jose@^5.6.3",
-		"loro-crdt": "npm:loro-crdt"
+		"loro-crdt": "npm:loro-crdt",
+		"msgpackr": "npm:msgpackr@^1.10.2",
+		"zod": "npm:zod@^3.23.8"
 	},
 	"lint": {
 		"rules": {

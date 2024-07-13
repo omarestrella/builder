@@ -16,16 +16,22 @@ import ReactFlow, {
 } from "reactflow"
 
 import { useThrottle } from "./hooks/use-throttle"
+import { useDocumentManager } from "./managers/document/hooks"
 import { useDropNodeEffect } from "./managers/drag/useDropNodeEffect"
-import { useLoroManager } from "./managers/loro/hooks"
 import { nodeManager } from "./managers/node/manager"
 import { CanvasNode } from "./nodes/components/canvas-node"
 import { nodeFromType } from "./nodes/nodes"
 
 let nodeTypes = { node: CanvasNode }
 
-export function Canvas() {
-	let loroManager = useLoroManager()
+export function Canvas({
+	projectID,
+	initialNodeData,
+}: {
+	projectID: string
+	initialNodeData?: Record<string, unknown>
+}) {
+	let documentManager = useDocumentManager()
 
 	let initializedRef = useRef(false)
 
@@ -121,55 +127,104 @@ export function Canvas() {
 	useEffect(() => {
 		if (initializedRef.current) return
 
-		let nodes = nodeManager.initialize()
-		loroManager.initializeDocument(nodeManager.nodeMap)
+		if (initialNodeData && projectID !== "new") {
+			documentManager.initializeDocument(nodeManager.nodeMap)
+			documentManager.connect(projectID).then(() => {
+				let nodes = Array.from(nodeManager.nodes.values()).filter(Boolean)
+				setCanvasNodes(
+					nodes.map((node) => ({
+						id: node.id,
+						position: node.meta.position,
+						data: node,
+						type: "node",
+					})),
+				)
 
-		setCanvasNodes(
-			nodes.map((node) => ({
-				id: node.id,
-				position: node.meta.position,
-				data: node,
-				type: "node",
-			})),
-		)
+				let edges: Edge[] = nodes.flatMap((inputNode) => {
+					return Object.entries(inputNode.inputData)
+						.map(([_key, input]) => {
+							if (!input.fromNodeID || !input.outputName) return
 
-		let edges: Edge[] = nodes.flatMap((inputNode) => {
-			return Object.entries(inputNode.inputData)
-				.map(([_key, input]) => {
-					if (!input.fromNodeID || !input.outputName) return
+							let outputNode = nodeManager.getNode(input.fromNodeID)
+							if (!outputNode) return
 
-					let outputNode = nodeManager.getNode(input.fromNodeID)
-					if (!outputNode) return
+							let outputData = outputNode.outputData[
+								input.outputName as never
+							] as Record<string, unknown>
 
-					let outputData = outputNode.outputData[
-						input.outputName as never
-					] as Record<string, unknown>
+							if (!outputData || !outputData.to || !outputData.from) return
 
-					if (!outputData || !outputData.to || !outputData.from) return
-
-					return {
-						id: crypto.randomUUID(),
-						source: outputNode.id,
-						sourceHandle: outputData.from,
-						target: inputNode.id,
-						targetHandle: outputData.to,
-					}
+							return {
+								id: crypto.randomUUID(),
+								source: outputNode.id,
+								sourceHandle: outputData.from,
+								target: inputNode.id,
+								targetHandle: outputData.to,
+							}
+						})
+						.filter((e) => !!e) as Edge[]
 				})
-				.filter((e) => !!e) as Edge[]
-		})
-		setCanvasEdges(edges)
+				setCanvasEdges(edges)
 
-		edges.forEach((edge) => {
-			nodeManager.addConnection({
-				fromNodeID: edge.source,
-				toNodeID: edge.target,
-				fromKey: edge.sourceHandle!,
-				toKey: edge.targetHandle!,
+				edges.forEach((edge) => {
+					nodeManager.addConnection({
+						fromNodeID: edge.source,
+						toNodeID: edge.target,
+						fromKey: edge.sourceHandle!,
+						toKey: edge.targetHandle!,
+					})
+				})
 			})
-		})
+		} else if (projectID === "new") {
+			let data = JSON.parse(localStorage.getItem("nodes") || "{}")
+			let nodes = nodeManager.initialize(projectID, data)
+			setCanvasNodes(
+				nodes.map((node) => ({
+					id: node.id,
+					position: node.meta.position,
+					data: node,
+					type: "node",
+				})),
+			)
+
+			let edges: Edge[] = nodes.flatMap((inputNode) => {
+				return Object.entries(inputNode.inputData)
+					.map(([_key, input]) => {
+						if (!input.fromNodeID || !input.outputName) return
+
+						let outputNode = nodeManager.getNode(input.fromNodeID)
+						if (!outputNode) return
+
+						let outputData = outputNode.outputData[
+							input.outputName as never
+						] as Record<string, unknown>
+
+						if (!outputData || !outputData.to || !outputData.from) return
+
+						return {
+							id: crypto.randomUUID(),
+							source: outputNode.id,
+							sourceHandle: outputData.from,
+							target: inputNode.id,
+							targetHandle: outputData.to,
+						}
+					})
+					.filter((e) => !!e) as Edge[]
+			})
+			setCanvasEdges(edges)
+
+			edges.forEach((edge) => {
+				nodeManager.addConnection({
+					fromNodeID: edge.source,
+					toNodeID: edge.target,
+					fromKey: edge.sourceHandle!,
+					toKey: edge.targetHandle!,
+				})
+			})
+		}
 
 		initializedRef.current = true
-	}, [loroManager])
+	}, [documentManager, projectID, initialNodeData])
 
 	return (
 		<div className="size-full">
