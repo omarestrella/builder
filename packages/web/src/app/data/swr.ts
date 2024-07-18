@@ -6,3 +6,10 @@ export const fetcher = (...args: unknown[]) =>
 		if (res.ok) return res.json()
 		return res.text().then((data) => Promise.reject(data))
 	})
+
+export const safeFetcher = (...args: unknown[]) =>
+	// @ts-expect-error this is fine
+	fetch(...args).then((res) => {
+		if (res.ok) return res.json()
+		return res.text()
+	})

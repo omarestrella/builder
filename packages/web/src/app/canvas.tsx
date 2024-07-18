@@ -26,14 +26,17 @@ let nodeTypes = { node: CanvasNode }
 
 export function Canvas({
 	projectID,
+	initialZoom,
 	initialNodeData,
 }: {
 	projectID: string
+	initialZoom?: number
 	initialNodeData?: Record<string, unknown>
 }) {
 	let documentManager = useDocumentManager()
 
 	let initializedRef = useRef(false)
+	let currentProjectIDRef = useRef(projectID)
 
 	let [canvasNodes, setCanvasNodes] = useState<Node[]>([])
 	let [canvasEdges, setCanvasEdges] = useState<Edge[]>([])
@@ -125,54 +128,58 @@ export function Canvas({
 	useDropNodeEffect(onNodeDrop)
 
 	useEffect(() => {
-		if (initializedRef.current) return
+		let didProjectChange = currentProjectIDRef.current !== projectID
+		if (initializedRef.current && !didProjectChange) {
+			return
+		}
 
-		if (initialNodeData && projectID !== "new") {
-			documentManager.initializeDocument(nodeManager.nodeMap)
-			documentManager.connect(projectID).then(() => {
-				let nodes = Array.from(nodeManager.nodes.values()).filter(Boolean)
-				setCanvasNodes(
-					nodes.map((node) => ({
-						id: node.id,
-						position: node.meta.position,
-						data: node,
-						type: "node",
-					})),
-				)
+		if (didProjectChange) {
+			nodeManager.reset()
+			initializedRef.current = false
+		}
 
-				let edges: Edge[] = nodes.flatMap((inputNode) => {
-					return Object.entries(inputNode.inputData)
-						.map(([_key, input]) => {
-							if (!input.fromNodeID || !input.outputName) return
+		if (initialNodeData) {
+			let nodes = nodeManager.initialize(projectID, initialNodeData)
+			setCanvasNodes(
+				nodes.map((node) => ({
+					id: node.id,
+					position: node.meta.position,
+					data: node,
+					type: "node",
+				})),
+			)
+			let edges: Edge[] = nodes.flatMap((inputNode) => {
+				return Object.entries(inputNode.inputData)
+					.map(([_key, input]) => {
+						if (!input.fromNodeID || !input.outputName) return
 
-							let outputNode = nodeManager.getNode(input.fromNodeID)
-							if (!outputNode) return
+						let outputNode = nodeManager.getNode(input.fromNodeID)
+						if (!outputNode) return
 
-							let outputData = outputNode.outputData[
-								input.outputName as never
-							] as Record<string, unknown>
+						let outputData = outputNode.outputData[
+							input.outputName as never
+						] as Record<string, unknown>
 
-							if (!outputData || !outputData.to || !outputData.from) return
+						if (!outputData || !outputData.to || !outputData.from) return
 
-							return {
-								id: crypto.randomUUID(),
-								source: outputNode.id,
-								sourceHandle: outputData.from,
-								target: inputNode.id,
-								targetHandle: outputData.to,
-							}
-						})
-						.filter((e) => !!e) as Edge[]
-				})
-				setCanvasEdges(edges)
-
-				edges.forEach((edge) => {
-					nodeManager.addConnection({
-						fromNodeID: edge.source,
-						toNodeID: edge.target,
-						fromKey: edge.sourceHandle!,
-						toKey: edge.targetHandle!,
+						return {
+							id: crypto.randomUUID(),
+							source: outputNode.id,
+							sourceHandle: outputData.from,
+							target: inputNode.id,
+							targetHandle: outputData.to,
+						}
 					})
+					.filter((e) => !!e) as Edge[]
+			})
+			setCanvasEdges(edges)
+
+			edges.forEach((edge) => {
+				nodeManager.addConnection({
+					fromNodeID: edge.source,
+					toNodeID: edge.target,
+					fromKey: edge.sourceHandle!,
+					toKey: edge.targetHandle!,
 				})
 			})
 		} else if (projectID === "new") {
@@ -224,7 +231,8 @@ export function Canvas({
 		}
 
 		initializedRef.current = true
-	}, [documentManager, projectID, initialNodeData])
+		currentProjectIDRef.current = projectID
+	}, [documentManager, projectID, initialNodeData, initialZoom, reactFlow])
 
 	return (
 		<div className="size-full">
@@ -237,6 +245,7 @@ export function Canvas({
 				onEdgesDelete={onEdgesDelete}
 				onConnect={onConnect}
 				selectionMode={SelectionMode.Partial}
+				minZoom={0.1}
 				panOnScroll
 				selectionOnDrag
 			>

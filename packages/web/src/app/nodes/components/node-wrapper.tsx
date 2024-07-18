@@ -1,6 +1,10 @@
+import { useCallback } from "react"
+
 import { EditableText } from "../../components/editable-text"
+import { useThrottle } from "../../hooks/use-throttle"
 import { BaseNode } from "../base"
-import { useNodeName, useNodeSize } from "../hooks"
+import { useNodeName, useNodePositionEffect, useNodeSize } from "../hooks"
+import { useReactFlow, XYPosition } from "reactflow"
 
 export function NodeWrapper({
 	node,
@@ -13,11 +17,34 @@ export function NodeWrapper({
 	inputs?: React.ReactNode
 	outputs?: React.ReactNode
 }) {
+	let reactFlow = useReactFlow()
+
 	let name = useNodeName(node)
 	let size = useNodeSize(node)
 
 	// not sure how to handle this right now, will fix later
 	let padding = node.type === "JAVASCRIPT" ? "0" : "4px"
+
+	let updateNodePosition = useCallback(
+		(position: XYPosition) => {
+			console.log("position change", position)
+			// reactFlow.updateNode(node.id, { position })
+			reactFlow.setNodes((nodes) => {
+				let nodeIndex = nodes.findIndex((n) => n.id === node.id)
+				if (nodeIndex === -1) return nodes
+
+				let newNode = { ...nodes[nodeIndex], position }
+				nodes[nodeIndex] = newNode
+
+				return [...nodes]
+			})
+		},
+		[node.id],
+	)
+
+	let throttledUpdateNodePosition = useThrottle(updateNodePosition, 0)
+
+	useNodePositionEffect(node, throttledUpdateNodePosition)
 
 	return (
 		<div className="flex size-full flex-col gap-1">

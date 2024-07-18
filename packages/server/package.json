@@ -4,7 +4,7 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "deno serve --unstable-kv --allow-read --allow-env --allow-net --node-modules-dir --watch src/main.ts"
+		"dev": "deno serve --unstable-kv --unstable-cron --allow-read --allow-write --allow-env --allow-net --allow-run --node-modules-dir --watch src/main.ts"
 	},
 	"dependencies": {},
 	"devDependencies": {}

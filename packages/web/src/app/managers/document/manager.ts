@@ -1,10 +1,14 @@
 import { bind } from "@builder/loro/src/bind"
 import { Loro } from "@builder/loro/src/index"
-import { decodeMessage, encodeMessage, ServerMessage } from "@builder/messages"
+import {
+	decodeMessage,
+	encodeClientMessage,
+	ServerMessage,
+} from "@builder/messages"
 import { proxy } from "valtio"
 
 export class DocumentManager {
-	loro: Loro = new Loro()
+	doc: Loro = new Loro()
 
 	private cleanup?: () => void
 	private loroSubscription?: number
@@ -14,19 +18,19 @@ export class DocumentManager {
 	socket?: WebSocket
 
 	initializeDocument(nodes: ReturnType<typeof proxy>) {
-		this.cleanup = bind(nodes, this.loro)
+		this.cleanup = bind(nodes, this.doc)
 		// @ts-expect-error - expose Loro for debugging
-		window.loro = this.loro
+		window.loro = this.doc
 
-		this.loroSubscription = this.loro.subscribe((event) => {
+		this.loroSubscription = this.doc.subscribe((event) => {
 			if (event.by === "local" && event.origin === "sync") {
 				console.log(
 					"sending update to server",
-					this.loro.getMap("root").toJSON(),
+					this.doc.getMap("root").toJSON(),
 				)
 				this.socket?.send(
-					encodeMessage("update", {
-						updates: this.loro.exportSnapshot(),
+					encodeClientMessage("update", {
+						updates: this.doc.exportSnapshot(),
 					}),
 				)
 			}
@@ -44,10 +48,10 @@ export class DocumentManager {
 	destroy() {
 		this.cleanup?.()
 		if (this.loroSubscription) {
-			this.loro.unsubscribe(this.loroSubscription)
+			this.doc.unsubscribe(this.loroSubscription)
 		}
 
-		this.loro = new Loro()
+		this.doc = new Loro()
 		this.socket?.close()
 	}
 
@@ -58,14 +62,14 @@ export class DocumentManager {
 
 			switch (message.type) {
 				case "connected":
-					this.loro.import(message.data)
+					this.doc.import(message.data)
 					// TODO: how do we wait for a sync step rather than the arbitrary time?
 					await new Promise((resolve) => setTimeout(resolve, 200))
 					this.connectionResolver?.()
 					break
 				case "sync":
 					console.log("recieved sync from server")
-					this.loro.import(message.data)
+					this.doc.import(message.data)
 					break
 			}
 		} catch (err) {

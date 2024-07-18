@@ -36,14 +36,28 @@ export type MessageData<T extends MessageType> = Omit<
 	"type"
 >
 
-export function encodeMessage<T extends MessageType>(
+function encodeMessage<M extends Message, T extends M["type"]>(
 	type: T,
-	data: Omit<Extract<Message, { type: T }>, "type">,
+	data: MessageData<T>,
 ) {
 	return pack({
 		type,
 		...data,
 	})
+}
+
+export function encodeClientMessage<T extends ClientMessage["type"]>(
+	type: T,
+	data: MessageData<T>,
+) {
+	return encodeMessage<ClientMessage, T>(type, data)
+}
+
+export function encodeServerMessage<T extends ServerMessage["type"]>(
+	type: T,
+	data: MessageData<T>,
+) {
+	return encodeMessage<ServerMessage, T>(type, data)
 }
 
 export function decodeMessage(message: Uint8Array): Message {

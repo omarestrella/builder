@@ -5,6 +5,10 @@ import { HonoAPI } from "../hono.ts"
 export const users = new HonoAPI()
 
 users.get("/session", async (c) => {
+	if (c.get("isScreenshot")) {
+		return c.json({ user: null })
+	}
+
 	let user = c.get("currentUser")
 	let projects = await db
 		.select()

@@ -7,10 +7,10 @@ import { Hono } from "../hono.ts"
 
 export const auth = new Hono()
 
-auth.post("/signup", async (c) => {
+auth.post("/register", async (c) => {
 	let req = await c.req.json()
 	if (!req.username || !req.password) {
-		return c.json({ error: "missing username/password" }, 400)
+		return c.json({ error: "Missing username/password" }, 400)
 	}
 
 	let dbUser = await db
@@ -20,7 +20,7 @@ auth.post("/signup", async (c) => {
 		.get()
 
 	if (dbUser) {
-		return c.json({ error: "account exists" }, 400)
+		return c.json({ error: "Username already taken" }, 400)
 	}
 
 	let res = await db
@@ -42,12 +42,12 @@ auth.post("/signup", async (c) => {
 // most of this is bad, but oh well, can be replaced later
 auth.post("/login", async (c) => {
 	if (c.get("currentUser")) {
-		return c.json({ error: "already logged in" }, 400)
+		return c.json({ error: "Already logged in" }, 400)
 	}
 
 	let req = await c.req.json()
 	if (!req.username || !req.password) {
-		return c.json({ error: "missing username/password" }, 400)
+		return c.json({ error: "Missing username/password" }, 400)
 	}
 
 	let dbUser = await db
@@ -57,12 +57,12 @@ auth.post("/login", async (c) => {
 		.get()
 
 	if (!dbUser) {
-		return c.json({ error: "account not found" }, 404)
+		return c.json({ error: "Account not found" }, 404)
 	}
 
 	let result = verify(req.password, dbUser.password)
 	if (!result) {
-		return c.json({ error: "account not found" }, 404)
+		return c.json({ error: "Account not found" }, 404)
 	}
 
 	let currentToken = await db
@@ -88,10 +88,30 @@ auth.post("/login", async (c) => {
 		.get()
 
 	if (!token?.token) {
-		return c.json({ error: "failed to create token" }, 500)
+		return c.json({ error: "Failed to create token" }, 500)
 	}
 
 	setCookie(c, "accessToken", token.token)
 
+	return c.json({
+		user: {
+			id: dbUser.id,
+			username: dbUser.username,
+			email: dbUser.email,
+			createdAt: dbUser.createdAt,
+		},
+	})
+})
+
+auth.post("/logout", async (c) => {
+	let user = c.get("currentUser")
+
+	if (!user) {
+		return c.json({ error: "Not logged in" }, 400)
+	}
+
+	await db.delete(accessToken).where(sql`${accessToken.userId} = ${user.id}`)
+
+	setCookie(c, "accessToken", "", { maxAge: 0 })
 	return c.json({})
 })

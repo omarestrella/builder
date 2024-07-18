@@ -15,46 +15,6 @@ export class NodeManager {
 
 	projectID = ""
 
-	constructor() {
-		subscribe(this.nodeMap, (ops) => {
-			if (this.projectID === "new") {
-				return
-			}
-
-			ops.forEach(([operation, path, value, _prevValue]) => {
-				switch (operation) {
-					case "set": {
-						let nodeID = path[0] as string
-						let nodeData = value as ReturnType<BaseNode["toJSON"]>
-
-						if (!nodeData) {
-							return
-						}
-
-						// setting the initial node value
-						if (nodeID && path.length === 1) {
-							if (this.nodes.get(nodeID) || !nodeData.type) {
-								return
-							}
-
-							let node = nodeFromType(nodeData.type, nodeID, nodeData)
-
-							this.setupListeners(node)
-
-							this.nodeMap[node.id] = node
-							this.nodes.set(node.id, node)
-						}
-						break
-					}
-					case "delete": {
-						// delete this.nodeMapJSON[path]
-						break
-					}
-				}
-			})
-		})
-	}
-
 	initialize(projectID: string, nodeData: Record<string, unknown> | undefined) {
 		if (!nodeData) return []
 
@@ -64,13 +24,20 @@ export class NodeManager {
 				string,
 				ReturnType<BaseNode["toJSON"]>
 			>
-			let nodes = Object.entries(parsedNodes).map(([id, nodeData]) => {
-				let node = nodeFromType(nodeData.type, id, nodeData)
-				this.nodeMap[node.id] = node
-				this.nodes.set(node.id, node)
+			let nodes = Object.entries(parsedNodes)
+				.map(([id, nodeData]) => {
+					if (!nodeData?.type) {
+						return
+					}
 
-				return node
-			})
+					let node = nodeFromType(nodeData.type, id, nodeData)
+
+					this.nodeMap[node.id] = node
+					this.nodes.set(node.id, node)
+
+					return node
+				})
+				.filter((n) => !!n) as BaseNode[]
 
 			nodes.forEach((node) => {
 				this.setupListeners(node)
@@ -209,6 +176,19 @@ export class NodeManager {
 		if (this.projectID === "new") {
 			localStorage.setItem("nodes", JSON.stringify(this.toJSON()))
 		}
+	}
+
+	reset() {
+		this.projectID = ""
+		this.nodeMap = proxy({})
+		this.nodes = new Map<string, BaseNode>()
+		this.dataSubscriptions.forEach((s) => s())
+		this.inputSubscriptions.forEach((s) => s())
+		this.outputSubscriptions.forEach((s) => s.forEach((cb) => cb()))
+		this.dataSubscriptions.clear()
+		this.inputSubscriptions.clear()
+		this.outputSubscriptions.clear()
+		this.proxyNodes.clear()
 	}
 }
 

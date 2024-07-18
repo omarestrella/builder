@@ -1,9 +1,16 @@
 import { fetcher, useSWR } from "./swr"
 
+type Project = {
+	id: number
+	name: string
+	data: Record<string, unknown>
+	createdAt: string
+}
+
 export function useProject(id: string) {
-	return useSWR(`/api/projects/${id}`, fetcher)
+	return useSWR<{ project: Project }>(`/api/projects/${id}`, fetcher)
 }
 
 export function useProjects() {
-	return useSWR("/api/projects", fetcher)
+	return useSWR<{ projects: Project[] }>("/api/projects", fetcher)
 }

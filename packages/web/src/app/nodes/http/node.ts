@@ -27,7 +27,7 @@ export class HttpRequestNode extends BaseNode<
 		properties,
 	}
 
-	dynamic = true
+	dynamicInputs = true
 
 	static type = "HTTP"
 

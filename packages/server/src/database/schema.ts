@@ -32,10 +32,11 @@ export const project = sqliteTable("project", {
 	createdAt: integer("created_at"),
 	deletedAt: integer("deleted_at"),
 })
+export type Project = InferSelectModel<typeof project>
 
-// maybe used in the future?
-export const loginToken = sqliteTable("login_token", {
-	token: text("token"),
-	userId: integer("user_id").primaryKey(),
-	expiresAt: integer("expires_at"), // unix timestamp
+export const projectScreenshot = sqliteTable("project_screenshot", {
+	id: integer("id").primaryKey(),
+	projectID: integer("project_id").notNull(),
+	location: text("location").notNull(),
 })
+export type ProjectScreenshot = InferSelectModel<typeof projectScreenshot>

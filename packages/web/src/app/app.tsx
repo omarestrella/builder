@@ -1,16 +1,25 @@
+import { useState } from "react"
 import { Redirect, Route, useRoute } from "wouter"
 
 import { Button } from "./components/button"
+import { LoginButton, LogoutButton } from "./components/login-registration"
+import { ProjectsButton } from "./components/projects-dialog"
 import { useCurrentSession } from "./data/session"
 import { Editor } from "./editor"
+import { ProjectPreview } from "./project-preview"
 
 function App() {
-	let { isLoading } = useCurrentSession()
+	let [loaded, setLoaded] = useState(false)
 
 	let [match] = useRoute("/")
 	let [matchProject, params] = useRoute("/project/:projectID")
+	let [matchPreview, previewParams] = useRoute("/project/:projectID/_preview")
 
-	if (isLoading) {
+	let newProject = matchProject && params?.projectID === "new"
+
+	let { data: user, isLoading } = useCurrentSession()
+
+	if (isLoading && !loaded) {
 		return (
 			<div className="flex size-full items-center justify-center">
 				Loading...
@@ -18,23 +27,40 @@ function App() {
 		)
 	}
 
+	if (!loaded) setLoaded(true)
+
 	if (match) {
 		return <Redirect to="/project/new" />
 	}
 
-	let newProject = matchProject && params?.projectID === "new"
+	if (matchPreview && previewParams?.projectID) {
+		return (
+			<div className="h-screen w-screen">
+				<Route path="/project/:projectID/_preview">
+					<ProjectPreview projectID={previewParams.projectID} />
+				</Route>
+			</div>
+		)
+	}
 
 	return (
 		<div className="h-screen w-screen">
 			<div className="grid h-full grid-rows-[48px,_minmax(0,1fr)]">
 				<div className="flex h-full items-center justify-between border-b px-4">
-					<div className="text-lg font-semibold">Builder</div>
+					<div className="flex items-center gap-4">
+						<span className="text-lg font-semibold"> Builder</span>
+						{user ? <ProjectsButton /> : null}
+					</div>
 
-					{newProject ? (
-						<div>
-							<Button type="submit">Save Project</Button>
-						</div>
-					) : null}
+					<div className="flex gap-2">
+						{newProject ? (
+							<div className="flex gap-2">
+								<Button>Save Project</Button>
+							</div>
+						) : null}
+
+						<>{!user ? <LoginButton /> : <LogoutButton />}</>
+					</div>
 				</div>
 
 				<Route path="/project/:projectID">

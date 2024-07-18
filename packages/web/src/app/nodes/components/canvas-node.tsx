@@ -1,11 +1,17 @@
 import { LucideTrash2 } from "lucide-react"
 import { ErrorBoundary } from "react-error-boundary"
-import { Handle, NodeProps, Position, useUpdateNodeInternals } from "reactflow"
+import {
+	Handle,
+	HandleType,
+	NodeProps,
+	Position,
+	useUpdateNodeInternals,
+} from "reactflow"
 
 import { Tooltip } from "../../components/tooltip"
 import { nodeManager } from "../../managers/node/manager"
 import { BaseNode } from "../base"
-import { useNodeInputData, useNodeOutput } from "../hooks"
+import { useNodeInputData, useNodeOutput, useNodeOutputData } from "../hooks"
 import { NodeWrapper } from "./node-wrapper"
 
 export function CanvasNode({ data: node, selected }: NodeProps<BaseNode>) {
@@ -16,7 +22,7 @@ export function CanvasNode({ data: node, selected }: NodeProps<BaseNode>) {
 		>
 			<NodeWrapper
 				node={node}
-				selected={selected}
+				selected={selected ?? false}
 				inputs={<Inputs node={node} />}
 				outputs={<Outputs node={node} />}
 			/>
@@ -89,15 +95,7 @@ function InputHandle({
 	let updateNodeInternals = useUpdateNodeInternals()
 
 	return (
-		<Handle
-			type="target"
-			position={Position.Left}
-			id={id}
-			className={`
-     group !relative !inset-x-auto !top-auto flex !h-5 !w-fit !transform-none items-center
-     !rounded-sm !border-none !bg-black px-1 text-xs text-white
-   `}
-		>
+		<InternalHandle type="target" position={Position.Left} id={id}>
 			{label}
 			{dynamic ? (
 				<span
@@ -116,17 +114,17 @@ function InputHandle({
 					<LucideTrash2 size={12} />
 				</span>
 			) : null}
-		</Handle>
+		</InternalHandle>
 	)
 }
 
 function Outputs({ node }: { node: BaseNode }) {
-	let outputData = Object.entries(node.outputData ?? {})
+	let outputData = Object.entries(useNodeOutputData(node))
 
 	return outputData.length > 0 ? (
 		<div className="flex flex-col gap-1">
 			<p className="m-0 text-xs font-bold">Outputs</p>
-			<div className="relative flex">
+			<div className="flex gap-2">
 				{outputData.map(([key, _value]) => (
 					<OutputHandle key={key} node={node} outputKey={key} />
 				))}
@@ -149,17 +147,35 @@ function OutputHandle({
 
 	return (
 		<Tooltip label={output} side="bottom">
-			<Handle
-				type="source"
-				position={Position.Bottom}
-				id={outputKey}
-				className={`
-      !relative !inset-x-auto !top-auto !h-5 !w-fit !transform-none !rounded-sm px-1 text-xs
-      text-white
-    `}
-			>
+			<InternalHandle type="source" position={Position.Bottom} id={outputKey}>
 				{outputKey}
-			</Handle>
+			</InternalHandle>
 		</Tooltip>
+	)
+}
+
+function InternalHandle({
+	id,
+	position,
+	type,
+	children,
+}: {
+	id: string
+	position: Position
+	type: HandleType
+	children: React.ReactNode
+}) {
+	return (
+		<Handle
+			type={type}
+			position={position}
+			id={id}
+			className={`
+     group !relative !inset-auto flex !h-5 !w-fit !transform-none items-center !rounded-sm
+     !border-none !bg-black px-1 text-xs text-white
+   `}
+		>
+			{children}
+		</Handle>
 	)
 }

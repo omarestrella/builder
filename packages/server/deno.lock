@@ -2,14 +2,25 @@
   "version": "3",
   "packages": {
     "specifiers": {
+      "jsr:@astral/astral@^0.4.3": "jsr:@astral/astral@0.4.3",
+      "jsr:@bradenmacdonald/s3-lite-client@^0.7.6": "jsr:@bradenmacdonald/s3-lite-client@0.7.6",
+      "jsr:@deno-library/progress@1.4.9": "jsr:@deno-library/progress@1.4.9",
       "jsr:@denorg/scrypt@^4.4.4": "jsr:@denorg/scrypt@4.4.4",
       "jsr:@std/assert@0.222.1": "jsr:@std/assert@0.222.1",
       "jsr:@std/assert@^0.222.1": "jsr:@std/assert@0.222.1",
+      "jsr:@std/assert@^0.223.0": "jsr:@std/assert@0.223.0",
+      "jsr:@std/async@0.223.0": "jsr:@std/async@0.223.0",
+      "jsr:@std/bytes@^1.0.1-rc.3": "jsr:@std/bytes@1.0.2",
       "jsr:@std/crypto@0.222.1": "jsr:@std/crypto@0.222.1",
       "jsr:@std/encoding@0.222.1": "jsr:@std/encoding@0.222.1",
       "jsr:@std/encoding@^0.222.1": "jsr:@std/encoding@0.222.1",
+      "jsr:@std/fmt@0.221.0": "jsr:@std/fmt@0.221.0",
       "jsr:@std/fmt@^0.222.1": "jsr:@std/fmt@0.222.1",
       "jsr:@std/fmt@^0.225.5": "jsr:@std/fmt@0.225.5",
+      "jsr:@std/fs@0.223.0": "jsr:@std/fs@0.223.0",
+      "jsr:@std/io@^0.224": "jsr:@std/io@0.224.3",
+      "jsr:@std/path@0.223.0": "jsr:@std/path@0.223.0",
+      "jsr:@zip-js/zip-js@2.7.41": "jsr:@zip-js/zip-js@2.7.41",
       "npm:@libsql/client": "npm:@libsql/client@0.6.2",
       "npm:@types/node": "npm:@types/node@18.16.19",
       "npm:drizzle-kit@^0.22.7": "npm:drizzle-kit@0.22.7_esbuild@0.19.12",
@@ -21,6 +32,28 @@
       "npm:zod@^3.23.8": "npm:zod@3.23.8"
     },
     "jsr": {
+      "@astral/astral@0.4.3": {
+        "integrity": "6b206155dc6c608eec2f5d9b9823eca2cdcbeb0bd00fb32c8b5fe94490a31405",
+        "dependencies": [
+          "jsr:@deno-library/progress@1.4.9",
+          "jsr:@std/async@0.223.0",
+          "jsr:@std/fs@0.223.0",
+          "jsr:@std/path@0.223.0",
+          "jsr:@zip-js/zip-js@2.7.41"
+        ]
+      },
+      "@bradenmacdonald/s3-lite-client@0.7.6": {
+        "integrity": "2b5976dca95d207dc88e23f9807e3eecbc441b0cf547dcda5784afe6668404d1",
+        "dependencies": [
+          "jsr:@std/io@^0.224"
+        ]
+      },
+      "@deno-library/progress@1.4.9": {
+        "integrity": "86db695ae338cb1ae3ffa46d6f2e6a9cdef33a15c2ace6fa25354a91a9dd3909",
+        "dependencies": [
+          "jsr:@std/fmt@0.221.0"
+        ]
+      },
       "@denorg/scrypt@4.4.4": {
         "integrity": "81e82ad4627e91f4c98c1789b3382667f366a61702642ad5d3a8dddf7b444905",
         "dependencies": [
@@ -35,6 +68,18 @@
           "jsr:@std/fmt@^0.222.1"
         ]
       },
+      "@std/assert@0.223.0": {
+        "integrity": "eb8d6d879d76e1cc431205bd346ed4d88dc051c6366365b1af47034b0670be24"
+      },
+      "@std/async@0.223.0": {
+        "integrity": "b42f635d89fb8f9e0e7dc258fbc8f33233e4977f61e0b20da08a8b51fd7b2c5d",
+        "dependencies": [
+          "jsr:@std/assert@^0.223.0"
+        ]
+      },
+      "@std/bytes@1.0.2": {
+        "integrity": "fbdee322bbd8c599a6af186a1603b3355e59a5fb1baa139f8f4c3c9a1b3e3d57"
+      },
       "@std/crypto@0.222.1": {
         "integrity": "d5b9e6c704fadbcc384cd42c0b603ad4aea710ece0ff26426602681b64fd237c",
         "dependencies": [
@@ -45,11 +90,32 @@
       "@std/encoding@0.222.1": {
         "integrity": "fb6c1d38722feebc8d4a5efa3eb2039ecec0d50d053186240484d0c4a4ce1006"
       },
+      "@std/fmt@0.221.0": {
+        "integrity": "379fed69bdd9731110f26b9085aeb740606b20428ce6af31ef6bd45ef8efa62a"
+      },
       "@std/fmt@0.222.1": {
         "integrity": "ec3382f9b0261c1ab1a5c804aa355d816515fa984cdd827ed32edfb187c0a722"
       },
       "@std/fmt@0.225.5": {
         "integrity": "38aa42528584873378a521f7842c1a1e99f0235d3f7d3db5ca02795312f439b8"
+      },
+      "@std/fs@0.223.0": {
+        "integrity": "3b4b0550b2c524cbaaa5a9170c90e96cbb7354e837ad1bdaf15fc9df1ae9c31c"
+      },
+      "@std/io@0.224.3": {
+        "integrity": "b402edeb99c6b3778d9ae3e9927bc9085b170b41e5a09bbb7064ab2ee394ae2f",
+        "dependencies": [
+          "jsr:@std/bytes@^1.0.1-rc.3"
+        ]
+      },
+      "@std/path@0.223.0": {
+        "integrity": "593963402d7e6597f5a6e620931661053572c982fc014000459edc1f93cc3989",
+        "dependencies": [
+          "jsr:@std/assert@^0.223.0"
+        ]
+      },
+      "@zip-js/zip-js@2.7.41": {
+        "integrity": "a883116c1b46673de643f9cd3b6619d746271b96cd9a8e2b9d0bb8353d764d3d"
       }
     },
     "npm": {
@@ -576,6 +642,8 @@
   },
   "workspace": {
     "dependencies": [
+      "jsr:@astral/astral@^0.4.3",
+      "jsr:@bradenmacdonald/s3-lite-client@^0.7.6",
       "jsr:@denorg/scrypt@^4.4.4",
       "jsr:@std/fmt@^0.225.5",
       "npm:@libsql/client",

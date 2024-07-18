@@ -19,8 +19,14 @@ export const currentUser = createMiddleware(async (c, next) => {
 })
 
 export const requireAuth = createMiddleware(async (c, next) => {
-	if (!c.get("currentUser") && !c.req.path.startsWith("/api/auth")) {
-		return c.text("Unauthorized", 401)
+	let screenshotCookie = getCookie(c, "accessToken")
+	if (screenshotCookie === Deno.env.get("SCREENSHOTS_ACCESS_TOKEN")) {
+		c.set("isScreenshot", true)
+		await next()
+	} else {
+		if (!c.get("currentUser") && !c.req.path.startsWith("/api/auth")) {
+			return c.text("Unauthorized", 401)
+		}
+		await next()
 	}
-	await next()
 })

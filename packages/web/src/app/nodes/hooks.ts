@@ -1,4 +1,5 @@
-import { useSnapshot } from "valtio"
+import { useEffect } from "react"
+import { subscribe, useSnapshot } from "valtio"
 import { z } from "zod"
 
 import { BaseNode } from "./base"
@@ -28,6 +29,14 @@ export function useNodeInputData<
 	return inputData as InputData
 }
 
+export function useNodeOutputData<
+	Node extends BaseNode,
+	OutputData extends Node["outputData"],
+>(node: Node) {
+	let outputData = useSnapshot(node.outputData)
+	return outputData as OutputData
+}
+
 export function useNodeProperty<
 	Node extends BaseNode,
 	Definition extends NonNullable<Node["definition"]["properties"]>,
@@ -44,4 +53,17 @@ export function useNodeName(node: BaseNode) {
 }
 export function useNodeSize(node: BaseNode) {
 	return useSnapshot(node.meta.size)
+}
+export function useNodePositionEffect(
+	node: BaseNode,
+	handler: (position: { x: number; y: number }) => void,
+) {
+	useEffect(() => {
+		let unsubscribe = subscribe(node.meta.position, () => {
+			handler(node.meta.position)
+		})
+		return () => {
+			unsubscribe()
+		}
+	}, [node, handler])
 }

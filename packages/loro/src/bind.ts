@@ -170,7 +170,7 @@ export function bind<T extends object>(
 	initializeDocument(obj, doc)
 
 	let unsubscribe = subscribe(obj, (ops) => {
-		log("doc -> obj sync", ops)
+		log("obj -> doc sync", ops)
 
 		ops.forEach(([operation, path, value, _prevValue]) => {
 			switch (operation) {
@@ -250,6 +250,8 @@ export function bind<T extends object>(
 	})
 
 	let subID = doc.subscribe((event) => {
+		log("doc -> obj sync", event)
+
 		if (event.origin === "undo" || event.origin === "redo") {
 			event.events.forEach((event) => {
 				let path = event.path.slice(1).map((s) => s.toString()) // remove "root"
@@ -269,7 +271,15 @@ export function bind<T extends object>(
 				let data = getNestedObjectValue(path, obj)
 				if (isProxyObject(data) && event.diff.type === "map") {
 					Object.entries(event.diff.updated).forEach(([key, value]) => {
-						data[key] = toObjectValue(value)
+						let objectValue = toObjectValue(value)
+						let parent = data[key]
+						if (isObject(objectValue) && isObject(parent)) {
+							Object.entries(objectValue).forEach(([key, value]) => {
+								parent[key] = value
+							})
+						} else {
+							data[key] = objectValue
+						}
 					})
 				} else if (isProxyArray(data) && event.diff.type === "list") {
 					throw new Error("No list ops yet")

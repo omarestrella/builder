@@ -10,10 +10,6 @@ export function Editor() {
 
 	let { data, error, isLoading } = useProject(projectID)
 
-	if (isLoading && projectID !== "new") {
-		return <div></div>
-	}
-
 	if (error && projectID !== "new") {
 		return (
 			<div className="flex size-full items-center justify-center">
@@ -29,7 +25,14 @@ export function Editor() {
 					<NodeList />
 				</div>
 
-				<Canvas projectID={projectID} initialNodeData={data} />
+				{isLoading && projectID !== "new" ? null : (
+					<Canvas
+						projectID={projectID}
+						initialNodeData={
+							data?.project.data?.root as Record<string, unknown>
+						}
+					/>
+				)}
 			</div>
 
 			<DragLayer />

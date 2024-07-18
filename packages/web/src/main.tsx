@@ -14,6 +14,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 			value={{
 				fetcher: fetcher,
 				revalidateOnFocus: false,
+				revalidateOnReconnect: false,
 			}}
 		>
 			<ReactFlowProvider>

@@ -1,4 +1,4 @@
-import { decodeMessage, encodeMessage } from "@builder/messages/index.ts"
+import { decodeMessage, encodeServerMessage } from "@builder/messages/index.ts"
 import { WSContext } from "hono/websocket"
 
 import { Logger } from "../logger.ts"
@@ -60,7 +60,7 @@ export class DocumentsGateway {
 		let documentData = liveDocument.handleConnect(client, userID)
 
 		client.send(
-			encodeMessage("connected", {
+			encodeServerMessage("connected", {
 				data: documentData,
 			}),
 		)
@@ -134,7 +134,7 @@ export class DocumentsGateway {
 		liveDocument.connections.forEach((connection) => {
 			if (connection !== client) {
 				connection.send(
-					encodeMessage("sync", {
+					encodeServerMessage("sync", {
 						data: liveDocument.document.exportSnapshot(),
 					}),
 				)
