@@ -1,6 +1,6 @@
 import { useCallback } from "react"
 
-import { EditableText } from "../../components/editable-text"
+import { EditableText } from "../../components/kit/editable-text"
 import { useThrottle } from "../../hooks/use-throttle"
 import { BaseNode } from "../base"
 import { useNodeName, useNodePositionEffect, useNodeSize } from "../hooks"

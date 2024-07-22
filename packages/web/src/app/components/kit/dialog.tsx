@@ -1,6 +1,6 @@
 import * as BaseDialog from "@radix-ui/react-dialog"
 import { LucideX } from "lucide-react"
-import { ReactNode } from "react"
+import { ReactNode, useEffect } from "react"
 
 import { Button } from "./button"
 
@@ -17,6 +17,19 @@ export function Dialog({
 	onClose: () => void
 	className?: string
 }) {
+	useEffect(() => {
+		let onKeyDown = (e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				onClose()
+			}
+		}
+		document.addEventListener("keydown", onKeyDown)
+
+		return () => {
+			document.removeEventListener("keydown", onKeyDown)
+		}
+	}, [onClose])
+
 	return (
 		<BaseDialog.Root open={open}>
 			<BaseDialog.Portal>

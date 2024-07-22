@@ -8,7 +8,7 @@ import {
 	useUpdateNodeInternals,
 } from "reactflow"
 
-import { Tooltip } from "../../components/tooltip"
+import { Tooltip } from "../../components/kit/tooltip"
 import { nodeManager } from "../../managers/node/manager"
 import { BaseNode } from "../base"
 import { useNodeInputData, useNodeOutput, useNodeOutputData } from "../hooks"

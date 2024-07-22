@@ -1,6 +1,6 @@
 import { Suspense } from "react"
 
-import { ScrollArea } from "../../components/scroll-area"
+import { ScrollArea } from "../../components/kit/scroll-area"
 import { useNodeInputs } from "../hooks"
 import { DebugNode } from "./node"
 

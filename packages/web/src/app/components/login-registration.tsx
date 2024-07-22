@@ -1,9 +1,9 @@
 import { useCallback, useState } from "react"
 
 import { useCurrentSession } from "../data/session"
-import { Button } from "./button"
-import { Dialog } from "./dialog"
-import { Input } from "./input"
+import { Button } from "./kit/button"
+import { Dialog } from "./kit/dialog"
+import { Input } from "./kit/input"
 
 export function LoginRegistrationDialog({
 	open,

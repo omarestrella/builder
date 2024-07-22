@@ -2,8 +2,8 @@ import { useState } from "react"
 import { Link } from "wouter"
 
 import { useProjects } from "../data/projects"
-import { Button } from "./button"
-import { Dialog } from "./dialog"
+import { Button } from "./kit/button"
+import { Dialog } from "./kit/dialog"
 
 export function ProjectsDialog({
 	open,
@@ -23,13 +23,14 @@ export function ProjectsDialog({
 			onClose={onClose}
 			className="max-w-4xl"
 		>
-			<div className="grid h-full w-full grid-rows-[1fr,32px] gap-2">
+			<div className="grid h-full w-full grid-rows-1 gap-2">
 				<div className="overflow-auto">
 					<div className="grid w-full grid-cols-[repeat(auto-fit,_15rem)] gap-3 px-4">
 						{projects?.map((project) => (
 							<Link
 								key={project.id}
 								href={`/project/${project.id}`}
+								onClick={onClose}
 								className={`
           relative flex flex-col gap-1 rounded-md border border-gray-100 transition-colors
 
@@ -50,9 +51,6 @@ export function ProjectsDialog({
 							</Link>
 						))}
 					</div>
-				</div>
-				<div className="px-4">
-					<Button>Create project</Button>
 				</div>
 			</div>
 		</Dialog>

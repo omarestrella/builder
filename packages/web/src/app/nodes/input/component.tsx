@@ -1,4 +1,4 @@
-import { Input } from "../../components/input"
+import { Input } from "../../components/kit/input"
 import { useNodeOutput } from "../hooks"
 import { InputNode } from "./node"
 
