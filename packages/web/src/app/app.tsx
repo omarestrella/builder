@@ -48,7 +48,7 @@ function App() {
 		<div className="h-screen w-screen">
 			<div className="grid h-full grid-rows-[48px,_minmax(0,1fr)]">
 				<div className="flex h-full items-center justify-between border-b px-4">
-					<div className="grid grid-cols-[32px,min-content] items-center gap-2">
+					<div className="grid grid-cols-[32px,max-content] items-center gap-2">
 						<AppDropdownMenu />
 
 						{params?.projectID ? (

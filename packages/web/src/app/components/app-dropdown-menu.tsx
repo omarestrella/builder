@@ -1,6 +1,7 @@
 import { LucideMenu } from "lucide-react"
 import { useEffect, useState } from "react"
 
+import { DeleteProjectDialog } from "./delete-project-dialog"
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -9,15 +10,21 @@ import {
 	DropdownMenuShortcut,
 	DropdownMenuTrigger,
 } from "./kit/dropdown-menu"
+import { NewProjectDialog } from "./new-project-dialog"
 import { ProjectsDialog } from "./projects-dialog"
 
 export function AppDropdownMenu() {
 	let [showProjects, setShowProjects] = useState(false)
+	let [showCreateProject, setShowCreateProject] = useState(false)
+	let [showDeleteProject, setShowDeleteProject] = useState(false)
 
 	useEffect(() => {
 		let onKeyDown = (e: KeyboardEvent) => {
 			if (e.key === "o" && e.ctrlKey) {
 				setShowProjects(true)
+			}
+			if (e.key === "n" && e.ctrlKey) {
+				setShowCreateProject(true)
 			}
 		}
 		document.addEventListener("keydown", onKeyDown)
@@ -36,13 +43,16 @@ export function AppDropdownMenu() {
 					</button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent side="bottom" sideOffset={6} align="start">
-					<DropdownMenuItem onSelect={() => void undefined}>
+					<DropdownMenuItem onSelect={() => setShowCreateProject(true)}>
 						New Project
 						<DropdownMenuShortcut>^N</DropdownMenuShortcut>
 					</DropdownMenuItem>
 					<DropdownMenuItem onSelect={() => setShowProjects(true)}>
 						Open Project
 						<DropdownMenuShortcut>^O</DropdownMenuShortcut>
+					</DropdownMenuItem>
+					<DropdownMenuItem onSelect={() => setShowDeleteProject(true)}>
+						<span className="text-red-500">Delete Project</span>
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />
 					<DropdownMenuItem onSelect={() => void undefined}>
@@ -59,6 +69,14 @@ export function AppDropdownMenu() {
 			<ProjectsDialog
 				open={showProjects}
 				onClose={() => setShowProjects(false)}
+			/>
+			<NewProjectDialog
+				open={showCreateProject}
+				onClose={() => setShowCreateProject(false)}
+			/>
+			<DeleteProjectDialog
+				open={showDeleteProject}
+				onClose={() => setShowDeleteProject(false)}
 			/>
 		</div>
 	)

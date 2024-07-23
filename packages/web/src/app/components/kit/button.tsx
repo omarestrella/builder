@@ -18,6 +18,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
       active:ring-0
 
+      disabled:cursor-not-allowed disabled:opacity-50
+
       ${className}
     `}
 				tabIndex={0}

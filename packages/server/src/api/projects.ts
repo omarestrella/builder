@@ -65,6 +65,26 @@ projects.get("/:id", async (c) => {
 	})
 })
 
+projects.delete("/:id", async (c) => {
+	let user = c.get("currentUser")
+	let id = c.req.param("id")
+	let data = await db
+		.select({
+			count: sql`COUNT(${project.id})`,
+		})
+		.from(project)
+		.where(sql`project.id = ${id} AND user_id = ${user.id}`)
+		.get()
+	if (!data || data.count === 0) {
+		return c.text("Project not found", 404)
+	}
+	await db
+		.delete(project)
+		.where(sql`id = ${id}`)
+		.run()
+	return c.json({})
+})
+
 projects.post("/", async (c) => {
 	let user = c.get("currentUser")
 	let req = await c.req.json()
