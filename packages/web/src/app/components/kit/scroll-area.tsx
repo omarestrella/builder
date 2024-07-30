@@ -28,7 +28,6 @@ export const ScrollArea = ({ children }: { children: React.ReactNode }) => (
 	<BaseScrollArea.Root
 		// eslint-disable-next-line tailwindcss/no-custom-classname
 		className="nowheel size-full overflow-hidden"
-		scrollHideDelay={1000000}
 	>
 		<BaseScrollArea.Viewport
 			className={`

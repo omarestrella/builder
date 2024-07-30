@@ -97,3 +97,13 @@ endpoints.get("/:nodeID", async (c) => {
 		sourceNode,
 	})
 })
+
+endpoints.delete("/:nodeID", async (c) => {
+	let nodeID = c.req.param("nodeID")
+
+	await db.delete(nodeEndpoint).where(sql`${nodeEndpoint.nodeID} = ${nodeID}`)
+
+	return c.json({
+		ok: true,
+	})
+})

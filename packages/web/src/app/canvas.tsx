@@ -119,7 +119,7 @@ export function Canvas({
 				},
 			])
 		},
-		[reactFlow],
+		[projectID, reactFlow],
 	)
 
 	useDropNodeEffect(onNodeDrop)

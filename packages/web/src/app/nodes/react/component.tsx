@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { createRoot } from "react-dom/client"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { CodeEditor } from "../../components/kit/code-editor"
 import { useDebounce } from "../../hooks/use-debounce"
@@ -7,6 +6,7 @@ import { compilerManager } from "../../managers/compiler/manager"
 import { vmManager } from "../../managers/vm/manager"
 import { useNodeInputData, useNodeInputs, useNodeProperty } from "../hooks"
 import { ReactNode } from "./node"
+import { Renderer } from "./renderer"
 
 export function Component({ node }: { node: ReactNode }) {
 	let inputs = useNodeInputs(node)
@@ -14,11 +14,9 @@ export function Component({ node }: { node: ReactNode }) {
 	let code = useNodeProperty(node, "code")
 
 	let [error, setError] = useState<string | null>(null)
+	let [parsedCode, setParsedCode] = useState<string | null>(null)
 
 	let initialized = useRef(false)
-	let reactContainer = useRef<HTMLDivElement>(null)
-
-	let root = useRef<ReturnType<typeof createRoot>>()
 
 	let onChange = useCallback(
 		(code: string) => {
@@ -36,47 +34,23 @@ export function Component({ node }: { node: ReactNode }) {
 		})
 	}, [inputs, inputData])
 
-	let runCode = useCallback(() => {
+	let compileCode = useCallback(async () => {
 		try {
-			vmManager.awaitReady().then(async () => {
-				let context: Record<string, unknown> = {
-					React,
-				}
-				Object.entries(inputData).forEach(([key]) => {
-					context[key] = inputs[key]
-				})
-
-				let transformedCode = await compilerManager.transform(code, {
-					jsx: "transform",
-					loader: "jsx",
-					jsxSideEffects: true,
-				})
-				let finalCode = `(() => {
-					let Comp = (function Comp() {
-						${transformedCode.code}
-					})()
-
-					return Comp
-				})()
-				`
-
-				try {
-					let result = vmManager.scopedEval(finalCode, context)
-					root.current?.render(result)
-
-					node.setOutput("output", result)
-					setError(null)
-				} catch (err) {
-					console.error(err)
-					setError((err as Error).toString())
-				}
+			let transformedCode = await compilerManager.transform(code, {
+				jsx: "transform",
+				loader: "jsx",
+				jsxFactory: "h",
+				jsxSideEffects: true,
 			})
+
+			setError(null)
+			setParsedCode(transformedCode.code)
 		} catch (e: unknown) {
 			setError((e as Error).message)
 		}
-	}, [code, inputs, inputData, node])
+	}, [code])
 
-	let debouncedRunCode = useDebounce(runCode, 500)
+	let debouncedCompileCode = useDebounce(compileCode, 500)
 
 	useEffect(() => {
 		if (initialized.current) {
@@ -84,15 +58,11 @@ export function Component({ node }: { node: ReactNode }) {
 		}
 		initialized.current = true
 		vmManager.init()
-
-		if (!root.current) {
-			root.current = createRoot(reactContainer.current!)
-		}
 	}, [])
 
 	useEffect(() => {
-		debouncedRunCode()
-	}, [code, inputs, inputData, debouncedRunCode, node])
+		debouncedCompileCode()
+	}, [code, inputs, inputData, debouncedCompileCode, node])
 
 	return (
 		<div className="flex size-full flex-col gap-1">
@@ -108,7 +78,7 @@ export function Component({ node }: { node: ReactNode }) {
 			<div className="flex flex-col gap-1 px-2 pb-2">
 				<span className="text-xs font-semibold">Preview</span>
 				{error ? <div className="text-xs text-red-500">{error}</div> : null}
-				<div ref={reactContainer} />
+				<Renderer code={parsedCode} />
 			</div>
 		</div>
 	)

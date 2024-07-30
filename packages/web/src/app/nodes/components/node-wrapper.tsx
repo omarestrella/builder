@@ -2,6 +2,7 @@ import { useCallback } from "react"
 import { NodeResizeControl, useReactFlow, XYPosition } from "reactflow"
 
 import { EditableText } from "../../components/kit/editable-text"
+import { ScrollArea } from "../../components/kit/scroll-area"
 import { useThrottle } from "../../hooks/use-throttle"
 import { BaseNode } from "../base"
 import { useNodeName, useNodePositionEffect, useNodeSize } from "../hooks"
@@ -21,9 +22,6 @@ export function NodeWrapper({
 
 	let name = useNodeName(node)
 	let size = useNodeSize(node)
-
-	// not sure how to handle this right now, will fix later
-	// let padding = node.type === "JAVASCRIPT" ? "0" : "4px"
 
 	let updateNodePosition = useCallback(
 		(position: XYPosition) => {
@@ -76,7 +74,9 @@ export function NodeWrapper({
 						padding: 0,
 					}}
 				>
-					<node.component node={node} />
+					<ScrollArea>
+						<node.component node={node} />
+					</ScrollArea>
 				</div>
 
 				{/* <div className="p-1 text-xs text-gray-500">{node.id}</div> */}

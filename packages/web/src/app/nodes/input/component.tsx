@@ -6,7 +6,7 @@ export function Component({ node }: { node: InputNode }) {
 	let value = useNodeOutput(node, "value")
 
 	return (
-		<div className="p-0.5">
+		<div className="p-2">
 			<Input
 				value={value ?? ""}
 				onChange={(e) => {

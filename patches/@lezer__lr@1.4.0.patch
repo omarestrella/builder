@@ -1,0 +1,26 @@
+diff --git a/dist/index.cjs b/dist/index.cjs
+index 4c6706dd75b5f482b5d8e04347f4d128b4885dc7..2152453c312049791e8e8c2199b4ead4d4f38f97 100644
+--- a/dist/index.cjs
++++ b/dist/index.cjs
+@@ -1026,7 +1026,7 @@ function overrides(token, prev, tableData, tableOffset) {
+ }
+ 
+ // Environment variable used to control console output
+-const verbose = typeof process != "undefined" && process.env && /\bparse\b/.test(process.env.LOG);
++const verbose = typeof process != "undefined" && process != null && process.env && /\bparse\b/.test(process.env.LOG);
+ let stackIDs = null;
+ function cutAt(tree, pos, side) {
+     let cursor = tree.cursor(common.IterMode.IncludeAnonymous);
+diff --git a/dist/index.js b/dist/index.js
+index 41dc38fbfabe85825d971e344d6864b6c0e577c1..ad4c142f26df69ef5316a0bd983c2abf7235f557 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -1024,7 +1024,7 @@ function overrides(token, prev, tableData, tableOffset) {
+ }
+ 
+ // Environment variable used to control console output
+-const verbose = typeof process != "undefined" && process.env && /\bparse\b/.test(process.env.LOG);
++const verbose = typeof process != "undefined" && process != null && process.env && /\bparse\b/.test(process.env.LOG);
+ let stackIDs = null;
+ function cutAt(tree, pos, side) {
+     let cursor = tree.cursor(IterMode.IncludeAnonymous);

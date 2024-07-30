@@ -81,6 +81,10 @@ export abstract class BaseNode<
 		return Promise.resolve()
 	}
 
+	onDelete(): Promise<void> {
+		return Promise.resolve()
+	}
+
 	initialize(nodeData?: ReturnType<BaseNode["toJSON"]>) {
 		let inputKeys = getSchemaKeys(
 			this.definition.inputs,

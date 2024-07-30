@@ -81,7 +81,7 @@ export function Component({ node }: { node: HttpRequestNode }) {
 
 	return (
 		// eslint-disable-next-line tailwindcss/no-custom-classname
-		<div className="nowheel flex size-full flex-col gap-2 p-1">
+		<div className="nowheel flex size-full flex-col gap-2 p-2">
 			<div className="grid w-full grid-cols-[112px,_1fr] gap-1">
 				<div className="w-full">
 					<Select
@@ -148,10 +148,10 @@ export function Component({ node }: { node: HttpRequestNode }) {
 				className={`
       grid min-h-16 w-full flex-1 grid-rows-[min-content,_1fr] flex-col gap-1
 
-      [&_.cm-editor]:border
+      [&_.cm-editor]:rounded-sm [&_.cm-editor]:border
     `}
 			>
-				<label className="text-xs font-medium">Body</label>
+				<label className="px-2 text-xs font-medium">Body</label>
 				<CodeEditor
 					code={body}
 					language="json"

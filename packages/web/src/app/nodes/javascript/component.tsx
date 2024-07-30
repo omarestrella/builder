@@ -38,9 +38,11 @@ export function Component({ node }: { node: JavaScriptNode }) {
 					context[key] = inputs[key]
 				})
 				let result = vmManager.scopedEval(
-					`(() => {
-					${code}
-				})()`,
+					`const runner = () => {
+						${code}
+					}
+					runner()
+					`,
 					context,
 				)
 

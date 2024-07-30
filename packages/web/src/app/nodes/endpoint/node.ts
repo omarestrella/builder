@@ -10,8 +10,9 @@ const inputs = z.object({
 const outputs = z.object({})
 const properties = z.object({
 	contentType: z.string(),
-	initialized: z.boolean(),
+	method: z.string(),
 	url: z.string(),
+	initialized: z.boolean(),
 })
 
 export class EndpointNode extends BaseNode<
@@ -47,6 +48,12 @@ export class EndpointNode extends BaseNode<
 		let data = await res.json()
 		this.setProperty("url", data.endpoint.url)
 		this.setProperty("initialized", true)
+	}
+
+	async onDelete(): Promise<void> {
+		await fetch(`/api/endpoints/${this.id}`, {
+			method: "DELETE",
+		})
 	}
 
 	static get icon() {

@@ -66,6 +66,8 @@ export class NodeManager {
 	}
 
 	removeNode(id: string) {
+		let node = this.nodeMap[id]
+
 		delete this.nodeMap[id]
 		this.nodes.delete(id)
 		this.outputSubscriptions.get(id)?.forEach((s) => s())
@@ -76,7 +78,9 @@ export class NodeManager {
 		this.inputSubscriptions.delete(id)
 		this.proxyNodes.delete(id)
 
-		this.save()
+		node.onDelete().then(() => {
+			this.save()
+		})
 	}
 
 	private setupListeners(node: BaseNode) {
