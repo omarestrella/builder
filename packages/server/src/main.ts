@@ -2,6 +2,7 @@ import { cors } from "hono/cors"
 import { load } from "https://deno.land/std@0.224.0/dotenv/mod.ts"
 
 import { auth } from "./api/auth.ts"
+import { endpoints } from "./api/endpoints.ts"
 import { projects } from "./api/projects.ts"
 import { users } from "./api/users.ts"
 import { sync } from "./documents/sync.ts"
@@ -24,6 +25,7 @@ api.get("/", (c) => c.json({ message: "Hello, World!" }))
 api.route("/users", users)
 api.route("/auth", auth)
 api.route("/projects", projects)
+api.route("/endpoints", endpoints)
 
 app.route("/sync", sync)
 app.route("/", api)

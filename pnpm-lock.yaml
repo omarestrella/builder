@@ -143,6 +143,9 @@ importers:
       '@jitl/quickjs-wasmfile-release-sync':
         specifier: 0.29.1
         version: 0.29.1
+      '@lezer/highlight':
+        specifier: ^1.2.0
+        version: 1.2.0
       '@radix-ui/react-context-menu':
         specifier: ^2.2.1
         version: 2.2.1(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -165,11 +168,14 @@ importers:
         specifier: 0.1.1
         version: 0.1.1(tailwindcss@3.4.4)
       '@tectonica/vm':
-        specifier: 0.0.6
-        version: 0.0.6
+        specifier: 1.0.1
+        version: 1.0.1
       codemirror:
         specifier: 6.0.1
         version: 6.0.1(@lezer/common@1.2.1)
+      esbuild-wasm:
+        specifier: ^0.23.0
+        version: 0.23.0
       framer-motion:
         specifier: 11.1.7
         version: 11.1.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1811,8 +1817,8 @@ packages:
     peerDependencies:
       tailwindcss: '>=3.2.0'
 
-  '@tectonica/vm@0.0.6':
-    resolution: {integrity: sha512-Tb5OT67znO/mUiTbWmFmQlrsk6JPwzlL4MCC8Kxhshorq2HvQBW1fpuMG2dxN4BG73ucgYTUMHXsw359daKtkQ==}
+  '@tectonica/vm@1.0.1':
+    resolution: {integrity: sha512-WAWG9uEJJ36hGde/6HvuXUDlpmPYnvBU4Xz7iPaj7Z5t5Ge3wEg8tBvm7+lwC2QV+ancKXQEMABcDUY6bPv1zQ==}
 
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -2515,6 +2521,11 @@ packages:
     resolution: {integrity: sha512-+4G/XmakeBAsvJuDugJvtyF1x+XJT4FMocynNpxrvEBViirpfUn2PgNpCHedfWhF4WokNsO/OvMKrmJOIJsI5A==}
     peerDependencies:
       esbuild: '>=0.12 <1'
+
+  esbuild-wasm@0.23.0:
+    resolution: {integrity: sha512-6jP8UmWy6R6TUUV8bMuC3ZyZ6lZKI56x0tkxyCIqWwRRJ/DgeQKneh/Oid5EoGoPFLrGNkz47ZEtWAYuiY/u9g==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   esbuild@0.18.20:
     resolution: {integrity: sha512-ceqxoedUrcayh7Y7ZX6NdbbDzGROiyVBgC4PriJThBKSVPWnnFHZAkfI1lJT8QFkOwH4qOS2SJkS4wvpGl8BpA==}
@@ -5430,7 +5441,7 @@ snapshots:
     dependencies:
       tailwindcss: 3.4.4
 
-  '@tectonica/vm@0.0.6':
+  '@tectonica/vm@1.0.1':
     dependencies:
       quickjs-emscripten: 0.29.1
 
@@ -6214,6 +6225,8 @@ snapshots:
       esbuild: 0.19.12
     transitivePeerDependencies:
       - supports-color
+
+  esbuild-wasm@0.23.0: {}
 
   esbuild@0.18.20:
     optionalDependencies:

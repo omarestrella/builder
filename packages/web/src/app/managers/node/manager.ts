@@ -1,3 +1,4 @@
+import { debounce } from "lodash"
 import { proxy, subscribe } from "valtio"
 
 import { BaseNode } from "../../nodes/base"
@@ -14,6 +15,8 @@ export class NodeManager {
 	proxyNodes = new Map<string, ReturnType<typeof proxy>>()
 
 	projectID = ""
+
+	private saveController = new AbortController()
 
 	initialize(projectID: string, nodeData: Record<string, unknown> | undefined) {
 		if (!nodeData) return []
@@ -172,11 +175,33 @@ export class NodeManager {
 		return nodes
 	}
 
-	save() {
+	async save() {
 		if (this.projectID === "new") {
 			localStorage.setItem("nodes", JSON.stringify(this.toJSON()))
+		} else {
+			this.throttledSave()
 		}
 	}
+
+	throttledSave = debounce(
+		() => {
+			this.saveController.abort()
+
+			this.saveController = new AbortController()
+			fetch(`/api/projects/${this.projectID}`, {
+				method: "PATCH",
+				body: JSON.stringify({
+					data: this.toJSON(),
+				}),
+				signal: this.saveController.signal,
+			}).catch((err) => {
+				if (err.name === "AbortError") return
+				throw err
+			})
+		},
+		200,
+		{ leading: true },
+	)
 
 	reset() {
 		this.projectID = ""

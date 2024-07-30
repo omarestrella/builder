@@ -15,6 +15,13 @@
       "when": 1721221936469,
       "tag": "0001_illegal_spacker_dave",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1721960107094,
+      "tag": "0002_pink_rogue",
+      "breakpoints": true
     }
   ]
 }

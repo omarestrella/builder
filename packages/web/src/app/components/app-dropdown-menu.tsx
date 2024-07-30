@@ -23,7 +23,7 @@ export function AppDropdownMenu() {
 			if (e.key === "o" && e.ctrlKey) {
 				setShowProjects(true)
 			}
-			if (e.key === "n" && e.ctrlKey) {
+			if (e.key === "c" && e.ctrlKey) {
 				setShowCreateProject(true)
 			}
 		}
@@ -44,11 +44,11 @@ export function AppDropdownMenu() {
 				</DropdownMenuTrigger>
 				<DropdownMenuContent side="bottom" sideOffset={6} align="start">
 					<DropdownMenuItem onSelect={() => setShowCreateProject(true)}>
-						New Project
-						<DropdownMenuShortcut>^N</DropdownMenuShortcut>
+						Create project
+						<DropdownMenuShortcut>^C</DropdownMenuShortcut>
 					</DropdownMenuItem>
 					<DropdownMenuItem onSelect={() => setShowProjects(true)}>
-						Open Project
+						Open project
 						<DropdownMenuShortcut>^O</DropdownMenuShortcut>
 					</DropdownMenuItem>
 					<DropdownMenuItem onSelect={() => setShowDeleteProject(true)}>

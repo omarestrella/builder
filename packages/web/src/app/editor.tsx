@@ -28,9 +28,7 @@ export function Editor() {
 				{isLoading && projectID !== "new" ? null : (
 					<Canvas
 						projectID={projectID}
-						initialNodeData={
-							data?.project.data?.root as Record<string, unknown>
-						}
+						initialNodeData={data?.project.data as Record<string, unknown>}
 					/>
 				)}
 			</div>

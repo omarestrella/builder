@@ -1,12 +1,28 @@
 import { BaseNode } from "./base"
 import { DebugNode } from "./debug/node"
+import { EndpointNode } from "./endpoint/node"
 import { HttpRequestNode } from "./http/node"
 import { InputNode } from "./input/node"
 import { JavaScriptNode } from "./javascript/node"
+import { ReactNode } from "./react/node"
 
-export { DebugNode, HttpRequestNode, InputNode, JavaScriptNode }
+export {
+	DebugNode,
+	EndpointNode,
+	HttpRequestNode,
+	InputNode,
+	JavaScriptNode,
+	ReactNode,
+}
 
-export const ALL_NODES = [InputNode, JavaScriptNode, HttpRequestNode, DebugNode]
+export const ALL_NODES = [
+	InputNode,
+	JavaScriptNode,
+	ReactNode,
+	EndpointNode,
+	HttpRequestNode,
+	DebugNode,
+]
 
 export * from "./base"
 

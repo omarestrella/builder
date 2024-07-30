@@ -142,7 +142,11 @@ function OutputHandle({
 }) {
 	let output = useNodeOutput(node, outputKey)
 	if (typeof output === "object" && output !== null) {
-		output = JSON.stringify(output)
+		try {
+			output = JSON.stringify(output)
+		} catch {
+			output = output.toString()
+		}
 	}
 
 	return (

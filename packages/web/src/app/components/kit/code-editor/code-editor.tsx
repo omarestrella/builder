@@ -17,7 +17,6 @@ import { javascript } from "@codemirror/lang-javascript"
 import { json } from "@codemirror/lang-json"
 import {
 	bracketMatching,
-	defaultHighlightStyle,
 	foldGutter,
 	foldKeymap,
 	indentOnInput,
@@ -38,11 +37,15 @@ import {
 } from "@codemirror/view"
 import { useCallback, useEffect, useRef, useState } from "react"
 
+import { githubLightHighlightStyle } from "./github-theme"
+
 let onChangeCompartment = new Compartment()
 let themeCompartment = new Compartment()
 let languageCompartment = new Compartment()
 
-let javascriptLanguage = javascript()
+let javascriptLanguage = javascript({
+	jsx: true,
+})
 let jsonLanguage = json()
 
 const baseTheme = EditorView.theme({
@@ -121,7 +124,7 @@ export default function CodeEditor({
 					highlightSpecialChars(),
 					history(),
 					drawSelection(),
-					syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+					syntaxHighlighting(githubLightHighlightStyle, { fallback: true }),
 					keymap.of([
 						...closeBracketsKeymap,
 						...defaultKeymap,
@@ -199,6 +202,7 @@ export default function CodeEditor({
 
 	useEffect(() => {
 		if (language !== "javascript") return
+
 		let completions = javascriptLanguage.language.data.of({
 			autocomplete: completionSource,
 		})
@@ -223,7 +227,7 @@ export default function CodeEditor({
 		<div
 			// eslint-disable-next-line tailwindcss/no-custom-classname
 			className={`
-     nodrag nowheel grid size-full max-h-64 cursor-text overflow-auto
+     nodrag nowheel grid size-full cursor-text overflow-auto
 
      [&_.cm-editor]:size-full [&_.cm-editor]:outline-none
    `}

@@ -1,10 +1,10 @@
 import { useCallback } from "react"
+import { NodeResizeControl, useReactFlow, XYPosition } from "reactflow"
 
 import { EditableText } from "../../components/kit/editable-text"
 import { useThrottle } from "../../hooks/use-throttle"
 import { BaseNode } from "../base"
 import { useNodeName, useNodePositionEffect, useNodeSize } from "../hooks"
-import { useReactFlow, XYPosition } from "reactflow"
 
 export function NodeWrapper({
 	node,
@@ -23,12 +23,10 @@ export function NodeWrapper({
 	let size = useNodeSize(node)
 
 	// not sure how to handle this right now, will fix later
-	let padding = node.type === "JAVASCRIPT" ? "0" : "4px"
+	// let padding = node.type === "JAVASCRIPT" ? "0" : "4px"
 
 	let updateNodePosition = useCallback(
 		(position: XYPosition) => {
-			console.log("position change", position)
-			// reactFlow.updateNode(node.id, { position })
 			reactFlow.setNodes((nodes) => {
 				let nodeIndex = nodes.findIndex((n) => n.id === node.id)
 				if (nodeIndex === -1) return nodes
@@ -39,7 +37,7 @@ export function NodeWrapper({
 				return [...nodes]
 			})
 		},
-		[node.id],
+		[node.id, reactFlow],
 	)
 
 	let throttledUpdateNodePosition = useThrottle(updateNodePosition, 0)
@@ -48,7 +46,9 @@ export function NodeWrapper({
 
 	return (
 		<div className="flex size-full flex-col gap-1">
-			{inputs ? <div className="px-1">{inputs}</div> : null}
+			{inputs ? (
+				<div className="absolute -top-1 -translate-y-full px-1">{inputs}</div>
+			) : null}
 
 			<div
 				className={`
@@ -56,6 +56,11 @@ export function NodeWrapper({
 
       ${selected ? "border-black/30" : ""}
     `}
+				style={{
+					width: `${size.width}px`,
+					height: `${size.height}px`,
+					maxHeight: `${size.height}px`,
+				}}
 			>
 				<div className="flex gap-2 border-b p-2 text-sm font-bold">
 					<EditableText
@@ -68,10 +73,7 @@ export function NodeWrapper({
 					className={`min-h-0 flex-1 border-b border-none`}
 					data-node-container
 					style={{
-						padding,
-						width: `${size.width}px`,
-						height: `${size.height}px`,
-						maxHeight: `${size.height}px`,
+						padding: 0,
 					}}
 				>
 					<node.component node={node} />
@@ -80,7 +82,7 @@ export function NodeWrapper({
 				{/* <div className="p-1 text-xs text-gray-500">{node.id}</div> */}
 
 				{/* Disabled for now */}
-				{/* <NodeResizeControl
+				<NodeResizeControl
 					minWidth={240}
 					className={`!size-auto !-translate-x-5 !-translate-y-5 !bg-transparent opacity-25`}
 					onResize={(_e, data) => {
@@ -100,10 +102,14 @@ export function NodeWrapper({
 						<path fill="#444" d="M12.7 16l3.3-3.3v-1.4l-4.7 4.7z"></path>
 						<path fill="#444" d="M15.7 16l0.3-0.3v-1.4l-1.7 1.7z"></path>
 					</svg>
-				</NodeResizeControl> */}
+				</NodeResizeControl>
 			</div>
 
-			{outputs ? <div className="px-1">{outputs}</div> : null}
+			{outputs ? (
+				<div className="absolute -bottom-1 translate-y-full px-1">
+					{outputs}
+				</div>
+			) : null}
 		</div>
 	)
 }

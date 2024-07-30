@@ -80,6 +80,7 @@ export function LoginRegistrationDialog({
 			open={open}
 			title={isRegistering ? "Register" : "Log in"}
 			onClose={onClose}
+			className="max-w-sm"
 		>
 			<div className="flex flex-col gap-4 px-4">
 				{!isRegistering ? (

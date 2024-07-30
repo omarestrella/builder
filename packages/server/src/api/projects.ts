@@ -65,6 +65,30 @@ projects.get("/:id", async (c) => {
 	})
 })
 
+projects.patch("/:id", async (c) => {
+	let user = c.get("currentUser")
+	let id = c.req.param("id")
+	let req = await c.req.json()
+	if (!req.data) {
+		return c.json({
+			error: "Missing data",
+		})
+	}
+	let result = await db
+		.update(project)
+		.set({
+			data: JSON.stringify(req.data),
+		})
+		.where(sql`${project.id} = ${id} and ${project.userId} = ${user.id}`)
+		.returning({
+			id: project.id,
+			data: project.data,
+		})
+		.get()
+
+	return c.json({ project: result })
+})
+
 projects.delete("/:id", async (c) => {
 	let user = c.get("currentUser")
 	let id = c.req.param("id")

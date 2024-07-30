@@ -77,6 +77,10 @@ export abstract class BaseNode<
 			this.type.substring(1).toLowerCase()
 	}
 
+	onCreate(_projectID: string): Promise<void> {
+		return Promise.resolve()
+	}
+
 	initialize(nodeData?: ReturnType<BaseNode["toJSON"]>) {
 		let inputKeys = getSchemaKeys(
 			this.definition.inputs,
@@ -207,12 +211,12 @@ export abstract class BaseNode<
 		return {
 			id: this.id,
 			type: this.type,
-			inputs: { ...this.inputs },
 			inputData: { ...this.inputData },
-			outputs: { ...this.outputs },
 			outputData: { ...this.outputData },
 			properties: { ...this.properties },
 			meta: { ...this.meta },
+			// outputs: { ...this.outputs },
+			// inputs: { ...this.inputs },
 		}
 	}
 }

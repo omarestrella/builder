@@ -40,3 +40,11 @@ export const projectScreenshot = sqliteTable("project_screenshot", {
 	location: text("location").notNull(),
 })
 export type ProjectScreenshot = InferSelectModel<typeof projectScreenshot>
+
+export const nodeEndpoint = sqliteTable("node_endpoint", {
+	id: integer("id").primaryKey(),
+	projectID: integer("project_id").notNull(),
+	nodeID: text("node_id").notNull(),
+	url: text("url").notNull(),
+})
+export type NodeEndpoint = InferSelectModel<typeof nodeEndpoint>

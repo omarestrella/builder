@@ -1,6 +1,6 @@
 import "reactflow/dist/style.css"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import ReactFlow, {
 	addEdge,
 	applyEdgeChanges,
@@ -26,17 +26,12 @@ let nodeTypes = { node: CanvasNode }
 
 export function Canvas({
 	projectID,
-	initialZoom,
 	initialNodeData,
 }: {
 	projectID: string
-	initialZoom?: number
 	initialNodeData?: Record<string, unknown>
 }) {
 	let documentManager = useDocumentManager()
-
-	let initializedRef = useRef(false)
-	let currentProjectIDRef = useRef(projectID)
 
 	let [canvasNodes, setCanvasNodes] = useState<Node[]>([])
 	let [canvasEdges, setCanvasEdges] = useState<Edge[]>([])
@@ -110,6 +105,8 @@ export function Canvas({
 			})
 
 			let node = nodeFromType(type)
+			node.onCreate(projectID)
+
 			nodeManager.addNode(node)
 
 			setCanvasNodes((nodes) => [
@@ -128,16 +125,6 @@ export function Canvas({
 	useDropNodeEffect(onNodeDrop)
 
 	useEffect(() => {
-		let didProjectChange = currentProjectIDRef.current !== projectID
-		if (initializedRef.current && !didProjectChange) {
-			return
-		}
-
-		if (didProjectChange) {
-			nodeManager.reset()
-			initializedRef.current = false
-		}
-
 		if (initialNodeData) {
 			let nodes = nodeManager.initialize(projectID, initialNodeData)
 			setCanvasNodes(
@@ -230,9 +217,10 @@ export function Canvas({
 			})
 		}
 
-		initializedRef.current = true
-		currentProjectIDRef.current = projectID
-	}, [documentManager, projectID, initialNodeData, initialZoom, reactFlow])
+		return () => {
+			nodeManager.reset()
+		}
+	}, [documentManager, projectID, initialNodeData, reactFlow])
 
 	return (
 		<div className="size-full">
