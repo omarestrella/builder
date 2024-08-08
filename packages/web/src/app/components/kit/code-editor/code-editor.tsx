@@ -36,6 +36,7 @@ import {
 	tooltips,
 } from "@codemirror/view"
 import { useCallback, useEffect, useRef, useState } from "react"
+import useResizeObserver from "use-resize-observer"
 
 import { githubLightHighlightStyle } from "./github-theme"
 
@@ -71,6 +72,7 @@ export default function CodeEditor({
 	onChange: (code: string) => void
 }) {
 	let [editorView, setEditorView] = useState<EditorView | null>(null)
+	let parentRef = useRef<HTMLDivElement>(null)
 	let containerRef = useRef<HTMLDivElement>(null)
 
 	let completionSource: CompletionSource = useCallback(
@@ -102,6 +104,24 @@ export default function CodeEditor({
 		},
 		[completionData],
 	)
+
+	let onResize = useCallback(() => {
+		if (!editorView?.scrollDOM) return
+
+		if (
+			editorView.scrollDOM.scrollWidth > editorView.scrollDOM.clientWidth ||
+			editorView.scrollDOM.scrollHeight > editorView.scrollDOM.clientHeight
+		) {
+			containerRef.current?.classList.add("nowheel")
+		} else {
+			containerRef.current?.classList.remove("nowheel")
+		}
+	}, [editorView])
+
+	useResizeObserver({
+		ref: containerRef,
+		onResize,
+	})
 
 	useEffect(() => {
 		if (!containerRef.current) return
@@ -225,9 +245,10 @@ export default function CodeEditor({
 
 	return (
 		<div
+			ref={parentRef}
 			// eslint-disable-next-line tailwindcss/no-custom-classname
 			className={`
-     nodrag nowheel grid size-full cursor-text overflow-auto
+     nodrag grid size-full cursor-text overflow-auto
 
      [&_.cm-editor]:size-full [&_.cm-editor]:outline-none
    `}

@@ -39,7 +39,6 @@ export function Component({ node }: { node: ReactNode }) {
 			let transformedCode = await compilerManager.transform(code, {
 				jsx: "transform",
 				loader: "jsx",
-				jsxFactory: "h",
 				jsxSideEffects: true,
 			})
 
@@ -61,6 +60,7 @@ export function Component({ node }: { node: ReactNode }) {
 	}, [])
 
 	useEffect(() => {
+		setParsedCode(null)
 		debouncedCompileCode()
 	}, [code, inputs, inputData, debouncedCompileCode, node])
 
@@ -78,7 +78,7 @@ export function Component({ node }: { node: ReactNode }) {
 			<div className="flex flex-col gap-1 px-2 pb-2">
 				<span className="text-xs font-semibold">Preview</span>
 				{error ? <div className="text-xs text-red-500">{error}</div> : null}
-				<Renderer code={parsedCode} />
+				{parsedCode ? <Renderer code={parsedCode} /> : null}
 			</div>
 		</div>
 	)

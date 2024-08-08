@@ -1,3 +1,6 @@
+import { transform } from "esbuild"
+import React from "react"
+import { renderToString } from "react-dom/server"
 import { z } from "zod"
 
 import { db, sql } from "../database/db.ts"
@@ -10,6 +13,45 @@ let provisionSchema = z.object({
 	projectID: z.string(),
 	nodeID: z.string(),
 })
+
+async function getDocument(strCode: string, title: string) {
+	let { code } = await transform(strCode, {
+		loader: "jsx",
+		jsx: "transform",
+		jsxSideEffects: true,
+	})
+	let finalCode = `(() => {
+			${code}
+		})()`
+	;(globalThis as unknown as { React?: typeof React }).React = React
+	// EXTREMELY UNSAFE, THIS NEEDS TO BE REPLACED
+	let data = eval(finalCode)
+
+	return `
+			<!DOCTYPE html>
+    	<html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+				<script src="https://cdn.tailwindcss.com"></script>
+				<title>${title}</title>
+      </head>
+			<body>
+			<div id="root">
+				${renderToString(data)}
+			</div>
+			<script type="module">
+				import React from "https://esm.sh/react";
+				import { hydrateRoot } from "https://esm.sh/react-dom/client";
+
+				const result = ${finalCode};
+				const container = document.querySelector("#root")
+				hydrateRoot(container, result)
+			</script>
+			</body>
+			</html>
+		`
+}
 
 endpoints.post("/provision", async (c) => {
 	let user = c.get("currentUser")
@@ -78,21 +120,39 @@ endpoints.get("/:nodeID", async (c) => {
 
 	let sourceNode = data[node.inputData.response.fromNodeID]
 
+	if (!sourceNode) {
+		return c.json({ error: "No source node" })
+	}
+
+	let contentType = node.properties.contentType ?? "application/json"
+	console.log(contentType)
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	let renderer: (...args: any[]) => Response | Promise<Response> = c.json
+	if (contentType === "text/html") {
+		renderer = c.render
+	} else if (contentType === "text") {
+		renderer = c.text
+	}
+
 	if (sourceNode.type === "HTTP") {
 		let res = await fetch(sourceNode.properties.url, {
 			method: sourceNode.properties.method,
 		})
 		let json = await res.json()
-		return c.json({
+		return renderer({
 			response: json,
 		})
 	} else if (sourceNode.type === "INPUT") {
-		return c.json({
+		return renderer({
 			response: sourceNode.outputs.value,
 		})
+	} else if (sourceNode.type === "REACT") {
+		let code = sourceNode.properties.code
+		return renderer(getDocument(code, sourceNode.meta.name))
 	}
 
-	return c.json({
+	return renderer({
 		node,
 		sourceNode,
 	})

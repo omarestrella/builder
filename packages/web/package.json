@@ -34,11 +34,10 @@
 		"@radix-ui/react-select": "2.0.0",
 		"@radix-ui/react-tooltip": "1.0.7",
 		"@tailwindcss/container-queries": "0.1.1",
-		"@tectonica/vm": "1.0.2",
+		"@tectonica/vm": "1.0.3",
 		"codemirror": "6.0.1",
 		"esbuild-wasm": "^0.23.0",
 		"framer-motion": "11.1.7",
-		"happy-dom-without-node": "^14.12.3",
 		"leaflet": "1.9.4",
 		"lodash": "4.17.21",
 		"loro-crdt": "0.16.7",
@@ -50,9 +49,8 @@
 		"react-leaflet": "4.2.1",
 		"reactflow": "11.11.3",
 		"swr": "^2.2.5",
+		"use-resize-observer": "^9.1.0",
 		"valtio": "1.13.2",
-		"vite-plugin-top-level-await": "1.4.1",
-		"vite-plugin-wasm": "3.3.0",
 		"wouter": "^3.3.1"
 	},
 	"devDependencies": {
@@ -69,6 +67,8 @@
 		"postcss": "8.4.38",
 		"tailwindcss": "3.4.4",
 		"typescript": "5.4.5",
-		"vite": "5.2.13"
+		"vite": "5.2.13",
+		"vite-plugin-top-level-await": "1.4.1",
+		"vite-plugin-wasm": "3.3.0"
 	}
 }

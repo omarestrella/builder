@@ -1,31 +1,19 @@
-import { h, render } from "preact"
-import * as Hooks from "preact/hooks"
-import { useEffect, useRef } from "react"
+import React, { useEffect, useRef } from "react"
+import { createRoot } from "react-dom/client"
 
 import { vmManager } from "../../managers/vm/manager"
 
-const hooks = {
-	useState: Hooks.useState,
-	useEffect: Hooks.useEffect,
-	useRef: Hooks.useRef,
-	useCallback: Hooks.useCallback,
-	useMemo: Hooks.useMemo,
-	useContext: Hooks.useContext,
-	useReducer: Hooks.useReducer,
-	useLayoutEffect: Hooks.useLayoutEffect,
-	useImperativeHandle: Hooks.useImperativeHandle,
-	useDebugValue: Hooks.useDebugValue,
-}
-
 export function Renderer({ code }: { code: string | null }) {
-	let container = useRef<HTMLDivElement>(document.createElement("div"))
-	let parentRef = useRef<HTMLDivElement>(null)
+	let container = useRef<HTMLDivElement>(null)
+	let initialized = useRef(false)
 
 	useEffect(() => {
 		if (!code) return
 
-		if (!container.current!.parentElement) {
-			parentRef.current?.appendChild(container.current!)
+		let root: ReturnType<typeof createRoot>
+		if (!initialized.current) {
+			root = createRoot(container.current!)
+			initialized.current = true
 		}
 
 		let finalCode = `function runCode() {
@@ -33,20 +21,19 @@ export function Renderer({ code }: { code: string | null }) {
 				${code}
 			})()
 
-			return Comp
+			root.render(Comp)
+			
 		}
 		runCode()
 		`
 
-		let context = {
-			...hooks,
-			h,
-		}
-
 		vmManager.awaitReady().then(async () => {
 			try {
-				let result = vmManager.scopedEval(finalCode, context)
-				render(result, container.current!)
+				if (!root) return
+				vmManager.scopedEval(finalCode, {
+					root,
+					React,
+				})
 			} catch (err) {
 				console.error(err)
 			}
@@ -55,5 +42,5 @@ export function Renderer({ code }: { code: string | null }) {
 
 	if (!code) return null
 
-	return <div ref={parentRef}></div>
+	return <div ref={container}></div>
 }

@@ -1,3 +1,5 @@
+import { useCallback } from "react"
+import { useStore } from "reactflow"
 import { useParams } from "wouter"
 
 import { Canvas } from "./canvas"
@@ -9,6 +11,8 @@ export function Editor() {
 	let { projectID } = useParams<"/:projectID">()
 
 	let { data, error, isLoading } = useProject(projectID)
+
+	let zoom = useStore(useCallback((state) => state.transform[2], []))
 
 	if (error && projectID !== "new") {
 		return (
@@ -33,7 +37,7 @@ export function Editor() {
 				)}
 			</div>
 
-			<DragLayer />
+			<DragLayer zoom={zoom} />
 		</>
 	)
 }

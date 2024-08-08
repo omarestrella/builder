@@ -4,7 +4,7 @@ import { NodeWrapper } from "../../nodes/components/node-wrapper"
 import { ALL_NODES } from "../../nodes/nodes"
 import { useDragState } from "./manager"
 
-export function DragLayer() {
+export function DragLayer({ zoom }: { zoom: number }) {
 	let { draggingType, position } = useDragState()
 
 	let nodeInstance = useMemo(() => {
@@ -26,8 +26,9 @@ export function DragLayer() {
 			<div
 				className="opacity-90 shadow-lg"
 				style={{
-					transform: `translate(${position.x}px, ${position.y}px)`,
+					transform: `translate(${position.x / zoom}px, ${position.y / zoom}px)`,
 					position: "absolute",
+					zoom,
 				}}
 			>
 				{nodeInstance ? (

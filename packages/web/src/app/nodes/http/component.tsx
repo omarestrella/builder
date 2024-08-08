@@ -80,8 +80,7 @@ export function Component({ node }: { node: HttpRequestNode }) {
 	}, [body, headers, inputs, method, url, debouncedPerformRequest])
 
 	return (
-		// eslint-disable-next-line tailwindcss/no-custom-classname
-		<div className="nowheel flex size-full flex-col gap-2 p-2">
+		<div className="flex size-full flex-col gap-2 p-2">
 			<div className="grid w-full grid-cols-[112px,_1fr] gap-1">
 				<div className="w-full">
 					<Select
