@@ -19,7 +19,7 @@ export class InputNode extends BaseNode<typeof inputs, typeof outputs> {
 
 	constructor(id?: string) {
 		super(id)
-		this.meta.size = { width: 240, height: 46 }
+		this.meta.size = { width: 240, height: 88 }
 	}
 
 	component(props: { node: InputNode }): JSX.Element {

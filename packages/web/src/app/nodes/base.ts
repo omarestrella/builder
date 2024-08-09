@@ -17,8 +17,11 @@ export type Schema = z.AnyZodObject | z.ZodRecord
 
 export type Definition<T extends Schema> = z.TypeOf<T>
 
-type SchemaKey<D extends Schema> = keyof z.TypeOf<D>
-type SchemaValue<D extends Schema> = z.TypeOf<D>[SchemaKey<D>]
+type SchemaKey<D extends Schema> = keyof z.TypeOf<D> | "node"
+type SchemaValue<
+	D extends Schema,
+	K extends SchemaKey<D> = SchemaKey<D>,
+> = K extends "node" ? string : z.TypeOf<D>[K]
 
 // this can probably be typed better, but I dont care right now
 export abstract class BaseNode<
@@ -39,9 +42,9 @@ export abstract class BaseNode<
 	outputs: Record<SchemaKey<OutputDef>, SchemaValue<OutputDef>> = proxy(
 		{} as never,
 	)
-	properties: Partial<
-		Record<SchemaKey<PropertiesDef>, SchemaValue<PropertiesDef>>
-	> = proxy({} as never)
+	properties: Partial<{
+		[K in SchemaKey<PropertiesDef>]: SchemaValue<PropertiesDef, K>
+	}> = proxy({} as never)
 
 	meta = proxy({
 		name: "",
@@ -85,6 +88,15 @@ export abstract class BaseNode<
 		return Promise.resolve()
 	}
 
+	run(_args?: {
+		abortController?: AbortController
+		params?: unknown
+	}): Promise<
+		Omit<{ [K in SchemaKey<OutputDef>]: SchemaValue<OutputDef, K> }, "node">
+	> {
+		throw new Error("run() is not implemented")
+	}
+
 	initialize(nodeData?: ReturnType<BaseNode["toJSON"]>) {
 		let inputKeys = getSchemaKeys(
 			this.definition.inputs,
@@ -100,6 +112,11 @@ export abstract class BaseNode<
 				outputName: undefined,
 			}
 		})
+
+		this.outputData.node = {
+			id: this.id,
+		}
+		this.outputs["node"] = this.id
 
 		outputKeys.forEach((key) => {
 			this.outputData[key] = {
@@ -139,9 +156,9 @@ export abstract class BaseNode<
 		this.inputs[key] = value
 	}
 
-	setProperty(
-		key: SchemaKey<PropertiesDef>,
-		value: SchemaValue<PropertiesDef>,
+	setProperty<K extends SchemaKey<PropertiesDef> = keyof this["properties"]>(
+		key: K,
+		value: SchemaValue<PropertiesDef, K>,
 	) {
 		this.properties[key] = value
 	}

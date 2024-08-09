@@ -60,7 +60,7 @@ export function NodeWrapper({
 					maxHeight: `${size.height}px`,
 				}}
 			>
-				<div className="flex gap-2 border-b p-2 text-sm font-bold">
+				<div className="flex items-center justify-between gap-2 border-b p-2 text-sm font-bold">
 					<EditableText
 						value={name}
 						onSubmit={(value) => (node.meta.name = value)}

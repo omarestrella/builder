@@ -5,6 +5,7 @@ import { HttpRequestNode } from "./http/node"
 import { InputNode } from "./input/node"
 import { JavaScriptNode } from "./javascript/node"
 import { ReactNode } from "./react/node"
+import { RepeaterNode } from "./repeater/node"
 
 export {
 	DebugNode,
@@ -13,11 +14,13 @@ export {
 	InputNode,
 	JavaScriptNode,
 	ReactNode,
+	RepeaterNode,
 }
 
 export const ALL_NODES = [
 	InputNode,
 	JavaScriptNode,
+	RepeaterNode,
 	ReactNode,
 	EndpointNode,
 	HttpRequestNode,

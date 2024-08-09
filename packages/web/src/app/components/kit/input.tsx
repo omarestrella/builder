@@ -10,8 +10,9 @@ export function Input({
 
 	return (
 		<input
+			// eslint-disable-next-line tailwindcss/no-custom-classname
 			className={`
-     h-8 w-full rounded-md border px-2 font-mono text-sm outline-none
+     nodrag h-8 w-full rounded-md border px-2 font-mono text-sm outline-none
 
      focus:ring-1 focus:ring-blue-200
 

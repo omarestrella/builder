@@ -21,6 +21,15 @@ export function useNodeInputs<
 	return inputs as Partial<Inputs>
 }
 
+export function useNodeInput<
+	Node extends BaseNode,
+	Inputs extends z.TypeOf<Node["definition"]["inputs"]>,
+	Key extends keyof Inputs,
+>(node: Node, key: Key) {
+	let inputs = useSnapshot(node.inputs)
+	return inputs[key as string] as Inputs[Key]
+}
+
 export function useNodeInputData<
 	Node extends BaseNode,
 	InputData extends Node["inputData"],

@@ -1,5 +1,5 @@
 import { LucidePlus } from "lucide-react"
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useRef } from "react"
 
 import { Button } from "../../components/kit/button"
 import { CodeEditor } from "../../components/kit/code-editor"
@@ -7,11 +7,8 @@ import { Select, SelectGroup, SelectItem } from "../../components/kit/dropdown"
 import { Input } from "../../components/kit/input"
 import { KeyValue } from "../../components/kit/key-value"
 import { useDebounce } from "../../hooks/use-debounce"
-import { interpolate } from "../../parsing/interpolate"
 import { useNodeInputs, useNodeProperty } from "../hooks"
 import { HttpRequestNode } from "./node"
-
-let abortController: AbortController | undefined
 
 export function Component({ node }: { node: HttpRequestNode }) {
 	let method = useNodeProperty(node, "method")
@@ -19,6 +16,8 @@ export function Component({ node }: { node: HttpRequestNode }) {
 	let headers = useNodeProperty(node, "headers")
 	let body = useNodeProperty(node, "body")
 	let inputs = useNodeInputs(node)
+
+	let abortControllerRef = useRef<AbortController>()
 
 	let onBodyChange = useCallback(
 		(code: string) => {
@@ -28,50 +27,11 @@ export function Component({ node }: { node: HttpRequestNode }) {
 	)
 
 	let performRequest = useCallback(() => {
-		if (!url) {
-			return
-		}
+		abortControllerRef.current?.abort()
+		abortControllerRef.current = new AbortController()
 
-		if (abortController) {
-			abortController.abort()
-		}
-
-		abortController = new AbortController()
-		let requestUrl = interpolate(url, inputs)
-
-		let headersObj = Object.fromEntries(
-			(headers ?? []).map((header) => [header.key, header.value]),
-		)
-		let interpolatedHeaders = interpolate(JSON.stringify(headersObj), inputs)
-
-		fetch(requestUrl, {
-			method,
-			body: method !== "GET" ? interpolate(body, inputs) : undefined,
-			headers: JSON.parse(interpolatedHeaders),
-			signal: abortController.signal,
-		})
-			.then(async (response) => {
-				if (response.ok) {
-					let data: unknown = ""
-					if (
-						response.headers.get("Content-Type")?.includes("application/json")
-					) {
-						data = await response.json()
-					} else {
-						data = await response.text()
-					}
-					node.setOutput("response", data)
-					node.setOutput("error", undefined)
-				} else {
-					node.setOutput("response", undefined)
-					node.setOutput("error", response.statusText)
-				}
-			})
-			.catch((err) => {
-				node.setOutput("response", undefined)
-				node.setOutput("error", err.toString())
-			})
-	}, [body, headers, inputs, method, url, node])
+		node.run({ abortController: abortControllerRef.current })
+	}, [node])
 
 	let debouncedPerformRequest = useDebounce(performRequest, 500)
 
@@ -150,7 +110,7 @@ export function Component({ node }: { node: HttpRequestNode }) {
       [&_.cm-editor]:rounded-sm [&_.cm-editor]:border
     `}
 			>
-				<label className="px-2 text-xs font-medium">Body</label>
+				<label className="text-xs font-medium">Body</label>
 				<CodeEditor
 					code={body}
 					language="json"
