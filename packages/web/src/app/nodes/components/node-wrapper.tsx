@@ -6,6 +6,7 @@ import { ScrollArea } from "../../components/kit/scroll-area"
 import { useThrottle } from "../../hooks/use-throttle"
 import { BaseNode } from "../base"
 import { useNodeName, useNodePositionEffect, useNodeSize } from "../hooks"
+import { RunButton } from "./run-button"
 
 export function NodeWrapper({
 	node,
@@ -60,11 +61,15 @@ export function NodeWrapper({
 					maxHeight: `${size.height}px`,
 				}}
 			>
-				<div className="flex items-center justify-between gap-2 border-b p-2 text-sm font-bold">
+				<div className="flex h-10 items-center justify-between gap-2 border-b p-2 text-sm font-bold">
 					<EditableText
 						value={name}
 						onSubmit={(value) => (node.meta.name = value)}
 					/>
+
+					<div>
+						<RunButton node={node} />
+					</div>
 				</div>
 
 				<div

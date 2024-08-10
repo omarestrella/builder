@@ -120,7 +120,13 @@ export class NodeManager {
 		this.outputSubscriptions.set(node.id, subscriptions)
 
 		let proxyClass = proxy(node)
-		let dataSubscription = subscribe(proxyClass, () => {
+		let dataSubscription = subscribe(proxyClass, (ops) => {
+			let outputsChanged = ops.every(([op, path]) => {
+				return op === "set" && path.includes("outputs")
+			})
+			if (outputsChanged) {
+				return
+			}
 			this.save()
 		})
 		this.proxyNodes.set(node.id, proxyClass)

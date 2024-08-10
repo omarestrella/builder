@@ -15,6 +15,8 @@ export class InputNode extends BaseNode<typeof inputs, typeof outputs> {
 		outputs,
 	}
 
+	runnable = false
+
 	static type = "INPUT"
 
 	constructor(id?: string) {

@@ -1,6 +1,7 @@
 import { LucideRepeat } from "lucide-react"
 import { z } from "zod"
 
+import { nodeManager } from "../../managers/node/manager"
 import { BaseNode } from "../base"
 import { Component } from "./component"
 
@@ -36,27 +37,33 @@ export class RepeaterNode extends BaseNode<
 		return Component(props)
 	}
 
-	async run({
-		abortController,
-		params,
-	}: {
-		abortController?: AbortController
-		params: { repeatNode: BaseNode }
-	}) {
-		if (!params.repeatNode) {
-			return { results: [] }
+	async run() {
+		let { node: nodeID } = this.inputs
+		if (!nodeID) {
+			return {
+				results: [],
+			}
+		}
+
+		let repeatNode = nodeManager.getNode(nodeID)
+		if (!repeatNode) {
+			console.warn("Node to repeat not found", { nodeID })
+			return {
+				results: [],
+			}
 		}
 
 		let { times } = this.properties
-		if (!times) {
-			return { results: [] }
+		if (!times || times < 1) {
+			return {
+				results: [],
+			}
 		}
 
 		let promises: Promise<unknown>[] = []
 		for (let i = 0; i < times; i++) {
-			let promise = params.repeatNode.run({
-				abortController,
-			})
+			let clone = repeatNode.clone()
+			let promise = clone.run()
 			promises.push(promise)
 		}
 

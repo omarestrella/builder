@@ -60,6 +60,7 @@ export abstract class BaseNode<
 	})
 
 	dynamic = false
+	runnable = true
 
 	abstract definition: {
 		inputs: Schema
@@ -88,10 +89,9 @@ export abstract class BaseNode<
 		return Promise.resolve()
 	}
 
-	run(_args?: {
-		abortController?: AbortController
-		params?: unknown
-	}): Promise<
+	run(
+		..._args: unknown[]
+	): Promise<
 		Omit<{ [K in SchemaKey<OutputDef>]: SchemaValue<OutputDef, K> }, "node">
 	> {
 		throw new Error("run() is not implemented")
@@ -226,6 +226,13 @@ export abstract class BaseNode<
 
 	get name() {
 		return this.meta.name
+	}
+
+	clone(): BaseNode {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		let node = new (this.constructor as any)()
+		node.initialize(this.toJSON())
+		return node
 	}
 
 	toJSON() {

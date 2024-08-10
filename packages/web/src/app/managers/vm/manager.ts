@@ -17,3 +17,5 @@ class VMManager extends BaseVMManager {
 }
 
 export const vmManager = new VMManager()
+
+vmManager.init()

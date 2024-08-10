@@ -14,12 +14,8 @@ export function Component({ node }: { node: RepeaterNode }) {
 	let repeatNode = useNode(nodeID)
 
 	let runRepeater = useCallback(() => {
-		node.run({
-			params: {
-				repeatNode,
-			},
-		})
-	}, [node, repeatNode])
+		node.run()
+	}, [node])
 
 	let debouncedRunRepeater = useDebounce(runRepeater, 200)
 

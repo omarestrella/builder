@@ -15,6 +15,8 @@ export class DebugNode extends BaseNode<typeof inputs, typeof outputs> {
 		outputs,
 	}
 
+	runnable = false
+
 	static type = "DEBUG"
 
 	static get icon() {

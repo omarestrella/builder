@@ -1,13 +1,12 @@
 import { LucidePlus } from "lucide-react"
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback } from "react"
 
 import { Button } from "../../components/kit/button"
 import { CodeEditor } from "../../components/kit/code-editor"
 import { Select, SelectGroup, SelectItem } from "../../components/kit/dropdown"
 import { Input } from "../../components/kit/input"
 import { KeyValue } from "../../components/kit/key-value"
-import { useDebounce } from "../../hooks/use-debounce"
-import { useNodeInputs, useNodeProperty } from "../hooks"
+import { useNodeProperty } from "../hooks"
 import { HttpRequestNode } from "./node"
 
 export function Component({ node }: { node: HttpRequestNode }) {
@@ -15,9 +14,9 @@ export function Component({ node }: { node: HttpRequestNode }) {
 	let url = useNodeProperty(node, "url")
 	let headers = useNodeProperty(node, "headers")
 	let body = useNodeProperty(node, "body")
-	let inputs = useNodeInputs(node)
+	// let inputs = useNodeInputs(node)
 
-	let abortControllerRef = useRef<AbortController>()
+	// let abortControllerRef = useRef<AbortController>()
 
 	let onBodyChange = useCallback(
 		(code: string) => {
@@ -26,18 +25,18 @@ export function Component({ node }: { node: HttpRequestNode }) {
 		[node],
 	)
 
-	let performRequest = useCallback(() => {
-		abortControllerRef.current?.abort()
-		abortControllerRef.current = new AbortController()
+	// let performRequest = useCallback(() => {
+	// 	abortControllerRef.current?.abort()
+	// 	abortControllerRef.current = new AbortController()
 
-		node.run({ abortController: abortControllerRef.current })
-	}, [node])
+	// 	node.run({ abortController: abortControllerRef.current })
+	// }, [node])
 
-	let debouncedPerformRequest = useDebounce(performRequest, 500)
+	// let debouncedPerformRequest = useDebounce(performRequest, 500)
 
-	useEffect(() => {
-		debouncedPerformRequest()
-	}, [body, headers, inputs, method, url, debouncedPerformRequest])
+	// useEffect(() => {
+	// 	debouncedPerformRequest()
+	// }, [body, headers, inputs, method, url, debouncedPerformRequest])
 
 	return (
 		<div className="flex size-full flex-col gap-2 p-2">
