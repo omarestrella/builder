@@ -1,4 +1,5 @@
 import { LucideTrash2 } from "lucide-react"
+import { useMemo } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import {
 	Handle,
@@ -11,7 +12,7 @@ import {
 import { Tooltip } from "../../components/kit/tooltip"
 import { nodeManager } from "../../managers/node/manager"
 import { BaseNode } from "../base"
-import { useNodeInputData, useNodeOutput, useNodeOutputData } from "../hooks"
+import { useNodeInputData, useNodeOutput } from "../hooks"
 import { NodeWrapper } from "./node-wrapper"
 
 export function CanvasNode({ data: node, selected }: NodeProps<BaseNode>) {
@@ -119,15 +120,18 @@ function InputHandle({
 }
 
 function Outputs({ node }: { node: BaseNode }) {
-	let outputData = Object.entries(useNodeOutputData(node))
+	let keys = useMemo(() => node.getOutputKeys(), [node])
 
-	return outputData.length > 0 ? (
+	return keys.length > 0 ? (
 		<div className="flex flex-col gap-1">
 			<p className="m-0 text-xs font-bold">Outputs</p>
 			<div className="flex gap-2">
-				{outputData.map(([key, _value]) => (
-					<OutputHandle key={key} node={node} outputKey={key} />
-				))}
+				{keys.map((key) => {
+					if (!key) {
+						return null
+					}
+					return <OutputHandle key={key} node={node} outputKey={key} />
+				})}
 			</div>
 		</div>
 	) : null

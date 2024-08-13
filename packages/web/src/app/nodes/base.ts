@@ -3,8 +3,9 @@ import { z } from "zod"
 
 type OutputData = {
 	id: string
-	to?: string
-	from?: string
+	toNodeID?: string
+	toInputName?: string
+	fromOutputName?: string
 }
 
 type InputData = {
@@ -34,7 +35,7 @@ export abstract class BaseNode<
 	id: string
 
 	inputData: Record<SchemaKey<InputDef>, InputData> = proxy({} as never)
-	outputData: Record<SchemaKey<OutputDef>, OutputData> = proxy({} as never)
+	outputData: Array<OutputData> = proxy([] as never)
 
 	inputs: Record<SchemaKey<InputDef>, SchemaValue<InputDef>> = proxy(
 		{} as never,
@@ -101,9 +102,6 @@ export abstract class BaseNode<
 		let inputKeys = getSchemaKeys(
 			this.definition.inputs,
 		) as SchemaKey<InputDef>[]
-		let outputKeys = getSchemaKeys(
-			this.definition.outputs,
-		) as SchemaKey<OutputDef>[]
 
 		inputKeys.forEach((key) => {
 			this.inputData[key] = {
@@ -113,16 +111,7 @@ export abstract class BaseNode<
 			}
 		})
 
-		this.outputData.node = {
-			id: this.id,
-		}
 		this.outputs["node"] = this.id
-
-		outputKeys.forEach((key) => {
-			this.outputData[key] = {
-				id: crypto.randomUUID(),
-			}
-		})
 
 		if (nodeData) {
 			Object.entries(nodeData.inputData).forEach(([key, value]) => {
@@ -131,10 +120,11 @@ export abstract class BaseNode<
 					outputName: value.outputName,
 				})
 			})
-			Object.entries(nodeData.outputData).forEach(([key, value]) => {
-				this.setOutputData(key, {
-					from: value.from,
-					to: value.to,
+			nodeData.outputData.forEach((value) => {
+				this.addOutputData({
+					fromOutputName: value.fromOutputName,
+					toInputName: value.toInputName,
+					toNodeID: value.toNodeID,
 				})
 			})
 			Object.entries(nodeData.properties).forEach(([key, value]) => {
@@ -170,7 +160,8 @@ export abstract class BaseNode<
 		if (!this.inputData) throw new Error("Inputs not initialized")
 		if (!this.inputData[key]) {
 			if (!this.dynamic) {
-				throw new Error("Input key not found")
+				console.warn("Input key not found", { key, fromNodeID, outputName })
+				return
 			} else {
 				this.inputData[key] = {
 					id: crypto.randomUUID(),
@@ -184,19 +175,29 @@ export abstract class BaseNode<
 		this.inputData[key].outputName = outputName
 	}
 
-	setOutputData(key: SchemaKey<OutputDef>, data: Omit<OutputData, "id">) {
-		if (!this.outputData || !this.outputData[key])
-			throw new Error("Outputs not initialized")
-		this.outputData[key].from = data.from
-		this.outputData[key].to = data.to
+	addOutputData(data: Omit<OutputData, "id">) {
+		let existing = this.outputData.find(
+			(d) =>
+				d.fromOutputName == data.fromOutputName &&
+				d.toInputName === data.toInputName &&
+				d.toNodeID === data.toNodeID,
+		)
+		if (existing) return
+		let newOutputData = {
+			id: crypto.randomUUID(),
+			...data,
+		}
+		this.outputData.push(newOutputData)
 	}
 
 	removeInputData(key: SchemaKey<InputDef>) {
 		if (!this.inputData) throw new Error("Inputs not initialized")
 
 		delete this.inputs[key]
-		this.inputData[key].fromNodeID = undefined
-		this.inputData[key].outputName = undefined
+		if (this.inputData[key]) {
+			this.inputData[key].fromNodeID = undefined
+			this.inputData[key].outputName = undefined
+		}
 	}
 
 	deleteInputData(key: SchemaKey<InputDef>) {
@@ -206,14 +207,18 @@ export abstract class BaseNode<
 		delete this.inputData[key]
 	}
 
-	getOutputData(name: SchemaKey<OutputDef>): OutputData | undefined {
+	getOutputData(name: SchemaKey<OutputDef>): OutputData[] | undefined {
 		if (!this.outputData) throw new Error("Outputs not initialized")
-		return this.outputData?.[name]
+		return this.outputData?.filter((d) => d.fromOutputName === name)
 	}
 
 	removeOutputData(name: SchemaKey<OutputDef>) {
 		if (!this.outputData) throw new Error("Outputs not initialized")
-		delete this.outputData[name]
+		this.outputData = this.outputData.filter((d) => d.fromOutputName !== name)
+	}
+
+	getOutputKeys(): SchemaKey<OutputDef>[] {
+		return getSchemaKeys(this.definition.outputs) as SchemaKey<OutputDef>[]
 	}
 
 	getResult(_inputs: unknown): unknown {
@@ -240,7 +245,7 @@ export abstract class BaseNode<
 			id: this.id,
 			type: this.type,
 			inputData: { ...this.inputData },
-			outputData: { ...this.outputData },
+			outputData: Array.from(this.outputData),
 			properties: { ...this.properties },
 			meta: { ...this.meta },
 			// outputs: { ...this.outputs },

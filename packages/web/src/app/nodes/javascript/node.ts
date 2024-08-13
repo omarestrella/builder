@@ -52,8 +52,9 @@ export class JavaScriptNode extends BaseNode<
 			Object.entries(this.inputData).forEach(([key]) => {
 				context[key] = this.inputs[key]
 			})
+
 			let result = vmManager.scopedEval(
-				`const runner = () => {
+				`const runner = async () => {
 					${code}
 				}
 				runner()

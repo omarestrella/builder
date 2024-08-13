@@ -27,6 +27,7 @@ export class NodeManager {
 				string,
 				ReturnType<BaseNode["toJSON"]>
 			>
+
 			let nodes = Object.entries(parsedNodes)
 				.map(([id, nodeData]) => {
 					if (!nodeData?.type) {
@@ -47,7 +48,10 @@ export class NodeManager {
 			})
 
 			return nodes
-		} catch {
+		} catch (error) {
+			console.error("Failed to initialize nodes", {
+				error,
+			})
 			return []
 		}
 	}
@@ -57,6 +61,7 @@ export class NodeManager {
 		this.nodes.set(node.id, node)
 
 		this.setupListeners(node)
+		this.save()
 	}
 
 	getNode(id?: string) {
@@ -155,9 +160,10 @@ export class NodeManager {
 			fromNodeID: sourceNode.id,
 			outputName: fromKey,
 		})
-		sourceNode.setOutputData(fromKey, {
-			from: fromKey,
-			to: toKey,
+		sourceNode.addOutputData({
+			toNodeID: targetNode.id,
+			fromOutputName: fromKey,
+			toInputName: toKey,
 		})
 	}
 
@@ -193,7 +199,7 @@ export class NodeManager {
 		}
 	}
 
-	throttledSave = debounce(
+	private throttledSave = debounce(
 		() => {
 			this.saveController.abort()
 

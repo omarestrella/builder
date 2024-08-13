@@ -2,16 +2,24 @@ import { LucideLoaderCircle, LucidePlay } from "lucide-react"
 import { useState } from "react"
 
 import { Button } from "../../components/kit/button"
+import { nodeManager } from "../../managers/node/manager"
 import { BaseNode } from "../base"
 
 export function RunButton({ node }: { node: BaseNode }) {
 	let [running, setRunning] = useState(false)
 
-	let triggerDownstreamNodes = () => {
-		// TODO: trigger nodes that are connected to this node
-		// for (let [_id, outputData] of Object.entries(node.outputData)) {
-		// 	console.log(outputData)
-		// }
+	let triggerDownstreamNodes = async () => {
+		let trigger = async (node: BaseNode) => {
+			for (let outputData of node.outputData) {
+				let downstreamNode = nodeManager.getNode(outputData.toNodeID)
+				if (!downstreamNode) {
+					continue
+				}
+				await downstreamNode.run()
+				await trigger(downstreamNode)
+			}
+		}
+		return trigger(node)
 	}
 
 	let runNode = async () => {
@@ -22,8 +30,7 @@ export function RunButton({ node }: { node: BaseNode }) {
 		setRunning(true)
 		try {
 			await node.run()
-
-			triggerDownstreamNodes()
+			await triggerDownstreamNodes()
 		} finally {
 			setRunning(false)
 		}
@@ -40,7 +47,9 @@ export function RunButton({ node }: { node: BaseNode }) {
 
      focus:ring-0
    `}
-			onClick={runNode}
+			onClick={() => {
+				requestAnimationFrame(() => runNode())
+			}}
 		>
 			{!running ? (
 				<LucidePlay size={14} />

@@ -5,14 +5,24 @@ import { proxy } from "valtio"
 class VMManager extends BaseVMManager {
 	state: never = proxy()
 
-	init(): Promise<void> {
-		return super.init({
+	async init(): Promise<void> {
+		let result = await super.init({
 			debug: false,
 			async: false,
 			variantOptions: {
 				wasmLocation,
 			},
 		})
+
+		await this.initializeGlobals()
+
+		return result
+	}
+
+	async initializeGlobals() {
+		await this.awaitReady()
+
+		this.registerVMGlobal("setTimeout", window.setTimeout)
 	}
 }
 

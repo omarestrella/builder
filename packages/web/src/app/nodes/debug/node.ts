@@ -31,4 +31,8 @@ export class DebugNode extends BaseNode<typeof inputs, typeof outputs> {
 	component(props: { node: DebugNode }): JSX.Element {
 		return Component(props)
 	}
+
+	async run() {
+		return Promise.resolve({})
+	}
 }

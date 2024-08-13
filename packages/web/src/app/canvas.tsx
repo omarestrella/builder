@@ -1,6 +1,6 @@
 import "reactflow/dist/style.css"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import ReactFlow, {
 	addEdge,
 	applyEdgeChanges,
@@ -22,8 +22,6 @@ import { nodeManager } from "./managers/node/manager"
 import { CanvasNode } from "./nodes/components/canvas-node"
 import { nodeFromType } from "./nodes/nodes"
 
-let nodeTypes = { node: CanvasNode }
-
 export function Canvas({
 	projectID,
 	initialNodeData,
@@ -31,12 +29,15 @@ export function Canvas({
 	projectID: string
 	initialNodeData?: Record<string, unknown>
 }) {
+	let reactFlow = useReactFlow()
 	let documentManager = useDocumentManager()
 
 	let [canvasNodes, setCanvasNodes] = useState<Node[]>([])
 	let [canvasEdges, setCanvasEdges] = useState<Edge[]>([])
 
-	let reactFlow = useReactFlow()
+	let initialized = useRef(false)
+
+	let nodeTypes = useMemo(() => ({ node: CanvasNode }), [])
 
 	let writeChanges = useCallback((changes: NodeChange[]) => {
 		changes.forEach((change) => {
@@ -106,6 +107,7 @@ export function Canvas({
 
 			let node = nodeFromType(type)
 			node.onCreate(projectID)
+			node.meta.position = position
 
 			nodeManager.addNode(node)
 
@@ -125,102 +127,62 @@ export function Canvas({
 	useDropNodeEffect(onNodeDrop)
 
 	useEffect(() => {
-		if (initialNodeData) {
-			let nodes = nodeManager.initialize(projectID, initialNodeData)
-			setCanvasNodes(
-				nodes.map((node) => ({
-					id: node.id,
-					position: node.meta.position,
-					data: node,
-					type: "node",
-				})),
-			)
-			let edges: Edge[] = nodes.flatMap((inputNode) => {
-				return Object.entries(inputNode.inputData)
-					.map(([_key, input]) => {
-						if (!input.fromNodeID || !input.outputName) return
-
-						let outputNode = nodeManager.getNode(input.fromNodeID)
-						if (!outputNode) return
-
-						let outputData = outputNode.outputData[
-							input.outputName as never
-						] as Record<string, unknown>
-
-						if (!outputData || !outputData.to || !outputData.from) return
-
-						return {
-							id: crypto.randomUUID(),
-							source: outputNode.id,
-							sourceHandle: outputData.from,
-							target: inputNode.id,
-							targetHandle: outputData.to,
-						}
-					})
-					.filter((e) => !!e) as Edge[]
-			})
-			setCanvasEdges(edges)
-
-			edges.forEach((edge) => {
-				nodeManager.addConnection({
-					fromNodeID: edge.source,
-					toNodeID: edge.target,
-					fromKey: edge.sourceHandle!,
-					toKey: edge.targetHandle!,
-				})
-			})
-		} else if (projectID === "new") {
-			let data = JSON.parse(localStorage.getItem("nodes") || "{}")
-			let nodes = nodeManager.initialize(projectID, data)
-			setCanvasNodes(
-				nodes.map((node) => ({
-					id: node.id,
-					position: node.meta.position,
-					data: node,
-					type: "node",
-				})),
-			)
-
-			let edges: Edge[] = nodes.flatMap((inputNode) => {
-				return Object.entries(inputNode.inputData)
-					.map(([_key, input]) => {
-						if (!input.fromNodeID || !input.outputName) return
-
-						let outputNode = nodeManager.getNode(input.fromNodeID)
-						if (!outputNode) return
-
-						let outputData = outputNode.outputData[
-							input.outputName as never
-						] as Record<string, unknown>
-
-						if (!outputData || !outputData.to || !outputData.from) return
-
-						return {
-							id: crypto.randomUUID(),
-							source: outputNode.id,
-							sourceHandle: outputData.from,
-							target: inputNode.id,
-							targetHandle: outputData.to,
-						}
-					})
-					.filter((e) => !!e) as Edge[]
-			})
-			setCanvasEdges(edges)
-
-			edges.forEach((edge) => {
-				nodeManager.addConnection({
-					fromNodeID: edge.source,
-					toNodeID: edge.target,
-					fromKey: edge.sourceHandle!,
-					toKey: edge.targetHandle!,
-				})
-			})
+		if (initialized.current) {
+			return
 		}
+
+		let data
+		if (initialNodeData) {
+			data = initialNodeData
+		} else if (projectID === "new") {
+			data = JSON.parse(localStorage.getItem("nodes") || "{}")
+		}
+
+		let nodes = nodeManager.initialize(projectID, data)
+		setCanvasNodes(
+			nodes.map((node) => ({
+				id: node.id,
+				position: node.meta.position,
+				data: node,
+				type: "node",
+			})),
+		)
+
+		let edges: Edge[] = nodes.flatMap((inputNode) => {
+			return inputNode.outputData
+				.map((outputData) => {
+					if (!outputData.toInputName || !outputData.fromOutputName) {
+						return null
+					}
+					return {
+						id: crypto.randomUUID(),
+						source: inputNode.id,
+						sourceHandle: outputData.fromOutputName,
+						target: outputData.toNodeID,
+						targetHandle: outputData.toInputName,
+					}
+				})
+				.filter(Boolean)
+				.filter((e) => !!e) as Edge[]
+		})
+		setCanvasEdges(edges)
+
+		edges.forEach((edge) => {
+			nodeManager.addConnection({
+				fromNodeID: edge.source,
+				toNodeID: edge.target,
+				fromKey: edge.sourceHandle!,
+				toKey: edge.targetHandle!,
+			})
+		})
+
+		initialized.current = true
 
 		return () => {
+			initialized.current = false
 			nodeManager.reset()
 		}
-	}, [documentManager, projectID, initialNodeData, reactFlow])
+	}, [documentManager, reactFlow, projectID, initialNodeData])
 
 	return (
 		<div className="size-full">
